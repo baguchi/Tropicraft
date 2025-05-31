@@ -28,7 +28,7 @@ import java.util.function.Predicate;
 
 public class BlowGunItem extends ProjectileWeaponItem {
     private static final PotionContents POTION_CONTENTS = new PotionContents(Optional.empty(), Optional.empty(), List.of(
-            new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 3 * 20, 20)
+            new MobEffectInstance(MobEffects.SLOWNESS, 3 * 20, 20)
     ));
 
     public BlowGunItem(Properties properties) {
@@ -41,7 +41,7 @@ public class BlowGunItem extends ProjectileWeaponItem {
             if (itemStack.getItem() == Items.TIPPED_ARROW) {
                 PotionContents contents = itemStack.getOrDefault(DataComponents.POTION_CONTENTS, PotionContents.EMPTY);
                 for (MobEffectInstance effectInstance : contents.getAllEffects()) {
-                    if (effectInstance.getEffect() == MobEffects.MOVEMENT_SLOWDOWN) {
+                    if (effectInstance.getEffect() == MobEffects.SLOWNESS) {
                         return true;
                     }
                 }

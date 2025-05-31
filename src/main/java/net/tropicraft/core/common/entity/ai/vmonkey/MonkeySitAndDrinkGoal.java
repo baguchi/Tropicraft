@@ -60,7 +60,7 @@ public class MonkeySitAndDrinkGoal extends Goal {
         // If drinking complete
         ItemStack heldStack = entity.getMainHandItem();
         if (heldStack.getItem() == TropicraftItems.BAMBOO_MUG.get()) {
-            entity.addEffect(new MobEffectInstance(MobEffects.CONFUSION, 10 * 20, 2));
+            entity.addEffect(new MobEffectInstance(MobEffects.NAUSEA, 10 * 20, 2));
         }
     }
 }

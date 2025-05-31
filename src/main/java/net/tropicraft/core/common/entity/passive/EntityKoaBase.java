@@ -695,7 +695,7 @@ public class EntityKoaBase extends Villager {
                     zapMemory();
 
                     druggedTime += 20 * 60 * 2;
-                    addEffect(new MobEffectInstance(MobEffects.CONFUSION, druggedTime));
+                    addEffect(new MobEffectInstance(MobEffects.NAUSEA, druggedTime));
                     findAndSetDrums(true);
                 }
                 // [1.15] Cojo - commenting out until we know what we want koa scuba interaction to be
@@ -931,7 +931,7 @@ public class EntityKoaBase extends Villager {
             if (level().dimension() != villageDimension) {
                 dbg("koa detected different dimension, zapping memory");
                 zapMemory();
-                addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 5));
+                addEffect(new MobEffectInstance(MobEffects.SLOWNESS, 5));
             }
             //}
         }
