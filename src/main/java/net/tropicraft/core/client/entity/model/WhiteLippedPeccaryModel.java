@@ -113,6 +113,10 @@ public class WhiteLippedPeccaryModel extends EntityModel<LivingEntityRenderState
         return LayerDefinition.create(mesh, 64, 64).apply(MeshTransformer.scaling(0.9f));
     }
 
+    public static LayerDefinition createBaby() {
+        return create().apply(ModelAnimator.hierarchicalBaby("head_base", 0.5f));
+    }
+
     @Override
     public void setupAnim(LivingEntityRenderState state) {
         super.setupAnim(state);
