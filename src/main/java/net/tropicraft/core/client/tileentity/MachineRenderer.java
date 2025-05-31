@@ -12,10 +12,9 @@ import net.minecraft.core.Direction;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.entity.EnchantingTableBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
-import net.neoforged.neoforge.client.extensions.IBlockEntityRendererExtension;
+import net.minecraft.world.phys.Vec3;
 import net.tropicraft.core.client.entity.model.MachineModel;
 import net.tropicraft.core.common.block.tileentity.IMachineBlock;
 
@@ -29,7 +28,7 @@ public abstract class MachineRenderer<T extends BlockEntity & IMachineBlock> imp
     }
 
     @Override
-    public void render(T te, float partialTicks, PoseStack stack, MultiBufferSource buffer, int combinedLightIn, int combinedOverlayIn) {
+    public void render(T te, float partialTicks, PoseStack stack, MultiBufferSource buffer, int combinedLightIn, int combinedOverlayIn, Vec3 cameraPos) {
         stack.pushPose();
         stack.translate(0.5f, 1.5f, 0.5f);
         stack.mulPose(Axis.XP.rotationDegrees(180));

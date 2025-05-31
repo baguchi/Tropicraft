@@ -5,13 +5,19 @@ import com.mojang.math.Axis;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.tropicraft.core.client.TropicraftRenderLayers;
 import net.tropicraft.core.client.entity.model.BeachFloatModel;
+import net.tropicraft.core.client.entity.render.state.FurnitureRenderState;
 import net.tropicraft.core.common.entity.placeable.BeachFloatEntity;
 
-public class BeachFloatRenderer extends FurnitureRenderer<BeachFloatEntity> {
+public class BeachFloatRenderer extends FurnitureRenderer<BeachFloatEntity, FurnitureRenderState> {
 
     public BeachFloatRenderer(EntityRendererProvider.Context context) {
         super(context, "beach_float", new BeachFloatModel(context.bakeLayer(TropicraftRenderLayers.BEACH_FLOAT_LAYER)));
         shadowRadius = 0.5f;
+    }
+
+    @Override
+    public FurnitureRenderState createRenderState() {
+        return new FurnitureRenderState();
     }
 
     @Override

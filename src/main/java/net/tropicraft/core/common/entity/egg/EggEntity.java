@@ -26,7 +26,6 @@ public abstract class EggEntity extends LivingEntity {
     public EggEntity(EntityType<? extends EggEntity> type, Level w) {
         super(type, w);
         rotationRand = 0;
-        noCulling = true;
 
         setYRot(random.nextInt(360));
         setHatchDelay(-60 + random.nextInt(120));
@@ -38,8 +37,8 @@ public abstract class EggEntity extends LivingEntity {
 
     @Override
     public void readAdditionalSaveData(CompoundTag compound) {
-        tickCount = compound.getInt("ticks");
-        setHatchDelay(compound.getInt("hatchDelay"));
+        tickCount = compound.getIntOr("ticks", 0);
+        setHatchDelay(compound.getIntOr("hatchDelay", 0));
         super.readAdditionalSaveData(compound);
     }
 
@@ -105,7 +104,7 @@ public abstract class EggEntity extends LivingEntity {
             if (tickCount >= getHatchTime()) {
                 if (!level().isClientSide) {
                     Entity ent = onHatch();
-                    ent.moveTo(getX(), getY(), getZ(), 0.0f, 0.0f);
+                    ent.snapTo(getX(), getY(), getZ(), 0.0f, 0.0f);
                     level().addFreshEntity(ent);
                     remove(RemovalReason.DISCARDED);
                 }
@@ -122,8 +121,8 @@ public abstract class EggEntity extends LivingEntity {
     }
 
     @Override
-    public Iterable<ItemStack> getArmorSlots() {
-        return ImmutableList.of();
+    public boolean canUseSlot(EquipmentSlot slot) {
+        return false;
     }
 
     @Override

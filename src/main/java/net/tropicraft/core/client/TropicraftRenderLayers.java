@@ -3,7 +3,6 @@ package net.tropicraft.core.client;
 import net.minecraft.client.model.CowModel;
 import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.client.model.geom.builders.LayerDefinition;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -90,6 +89,7 @@ public class TropicraftRenderLayers {
     public static ModelLayerLocation MAN_O_WAR_OUTER_LAYER;
     public static ModelLayerLocation MAN_O_WAR_GEL_LAYER;
     public static ModelLayerLocation BAMBOO_MUG;
+    public static ModelLayerLocation BAMBOO_MUG_LIQUID;
     public static ModelLayerLocation HEADPIECE_LAYER;
     public static ModelLayerLocation BAMBOO_CHEST;
     public static ModelLayerLocation BAMBOO_DOUBLE_CHEST_LEFT;
@@ -101,6 +101,7 @@ public class TropicraftRenderLayers {
     public static ModelLayerLocation FIDDLER_CRAB_LAYER;
     public static ModelLayerLocation HUMMINGBIRD_LAYER;
     public static ModelLayerLocation JAGUAR_LAYER;
+    public static ModelLayerLocation JAGUAR_BABY_LAYER;
     public static ModelLayerLocation TAPIR_LAYER;
     public static ModelLayerLocation TAPIR_BABY_LAYER;
     public static ModelLayerLocation SPIDER_MONKEY_LAYER;
@@ -156,6 +157,7 @@ public class TropicraftRenderLayers {
         MAN_O_WAR_GEL_LAYER = registerMain("man_o_war_gel", ManOWarModel::createGelLayerModel, event);
 
         BAMBOO_MUG = registerMain("bamboo_mug", BambooMugModel::create, event);
+        BAMBOO_MUG_LIQUID = registerLayer("bamboo_mug", "liquid", BambooMugModel::createLiquid, event);
 
         //BAMBOO_CHEST = registerMain("bamboo_chest", BambooChestRenderer);
         //BAMBOO_DOUBLE_CHEST_LEFT = registerMain("bamboo_double_chest_left", () -> BambooChestBlockEntityRenderer.getLeftDoubleTexturedModelData());
@@ -167,6 +169,7 @@ public class TropicraftRenderLayers {
         FIDDLER_CRAB_LAYER = registerMain("fiddler_crab", FiddlerCrabModel::create, event);
         HUMMINGBIRD_LAYER = registerMain("hummingbird", HummingbirdModel::create, event);
         JAGUAR_LAYER = registerMain("jaguar", JaguarModel::create, event);
+        JAGUAR_BABY_LAYER = registerMain("jaguar_baby", JaguarModel::createBaby, event);
         TAPIR_LAYER = registerMain("tapir", TapirModel::create, event);
         TAPIR_BABY_LAYER = registerMain("tapir_baby", TapirModel::createBaby, event);
         SPIDER_MONKEY_LAYER = registerMain("spider_monkey", SpiderMonkeyModel::create, event);
@@ -192,7 +195,11 @@ public class TropicraftRenderLayers {
     }
 
     private static ModelLayerLocation registerMain(String id, Supplier<LayerDefinition> layerDefinition, EntityRenderersEvent.RegisterLayerDefinitions event) {
-        ModelLayerLocation modelLayer = new ModelLayerLocation(Tropicraft.location(id), "main");
+        return registerLayer(id, "main", layerDefinition, event);
+    }
+
+    private static ModelLayerLocation registerLayer(String id, String layer, Supplier<LayerDefinition> layerDefinition, EntityRenderersEvent.RegisterLayerDefinitions event) {
+        ModelLayerLocation modelLayer = new ModelLayerLocation(Tropicraft.location(id), layer);
         event.registerLayerDefinition(modelLayer, layerDefinition);
         return modelLayer;
     }
