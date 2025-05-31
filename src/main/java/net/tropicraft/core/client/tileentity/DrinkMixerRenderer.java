@@ -13,7 +13,7 @@ import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.client.resources.model.Material;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.FastColor;
+import net.minecraft.util.ARGB;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
@@ -84,7 +84,7 @@ public class DrinkMixerRenderer extends MachineRenderer<DrinkMixerBlockEntity> {
             if (te.isDoneMixing()) {
                 int liquidColor = CocktailItem.getCocktail(te.result).color();
                 VertexConsumer consumer = buffer.getBuffer(filledMugModel.renderType(MUG_TEXTURE));
-                filledMugModel.renderToBuffer(stack, consumer, combinedLightIn, combinedOverlayIn, FastColor.ARGB32.opaque(liquidColor));
+                filledMugModel.renderToBuffer(stack, consumer, combinedLightIn, combinedOverlayIn, ARGB.opaque(liquidColor));
             } else {
                 VertexConsumer consumer = buffer.getBuffer(emptyMugModel.renderType(MUG_TEXTURE));
                 emptyMugModel.renderToBuffer(stack, consumer, combinedLightIn, combinedOverlayIn);

@@ -3,7 +3,7 @@ package net.tropicraft.core.common.item;
 import com.google.common.collect.Maps;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.CommonColors;
-import net.minecraft.util.FastColor;
+import net.minecraft.util.ARGB;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.item.ItemStack;
 import net.tropicraft.Constants;
@@ -21,7 +21,7 @@ public class LoveTropicsShellItem extends ShellItem {
         static {
             for (String name : ArrayUtils.addAll(Constants.LT17_NAMES, Constants.LT18_NAMES)) {
                 rand.setSeed(name.hashCode());
-                colors.put(name, FastColor.ARGB32.opaque(Color.HSBtoRGB(rand.nextFloat(), (rand.nextFloat() * 0.2f) + 0.7f, 1)));
+                colors.put(name, ARGB.opaque(Color.HSBtoRGB(rand.nextFloat(), (rand.nextFloat() * 0.2f) + 0.7f, 1)));
             }
         }
     }

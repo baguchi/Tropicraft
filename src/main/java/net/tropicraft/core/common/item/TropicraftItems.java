@@ -25,7 +25,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.PackType;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.util.CommonColors;
-import net.minecraft.util.FastColor;
+import net.minecraft.util.ARGB;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlotGroup;
 import net.minecraft.world.entity.Mob;
@@ -867,7 +867,7 @@ public class TropicraftItems {
     // Inner class to ensure that these don't get loaded on the server
     private static class ColorProviders {
         public static Supplier<ItemColor> furnitureColor(DyeColor color) {
-            return () -> (stack, tintIndex) -> tintIndex == 0 ? CommonColors.WHITE : FastColor.ARGB32.opaque(color.getTextColor());
+            return () -> (stack, tintIndex) -> tintIndex == 0 ? CommonColors.WHITE : ARGB.opaque(color.getTextColor());
         }
 
         public static Supplier<ItemColor> shellColor() {
@@ -879,7 +879,7 @@ public class TropicraftItems {
                 if (tintIndex == 0) {
                     return CommonColors.WHITE;
                 }
-                return FastColor.ARGB32.opaque(CocktailItem.getCocktail(stack).color());
+                return ARGB.opaque(CocktailItem.getCocktail(stack).color());
             };
         }
     }
