@@ -104,9 +104,9 @@ public final class BasiliskLizardEntity extends Animal {
     private void tickRunningAnimation() {
         boolean running = entityData.get(RUNNING);
         runningAnimation.tick(running);
-		if (running) {
+        if (running) {
             spawnRunningParticles();
-		}
+        }
     }
 
     private void spawnRunningParticles() {

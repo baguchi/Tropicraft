@@ -115,7 +115,7 @@ public class BasiliskLizardModel extends EntityModel<BasiliskLizardRenderState> 
 
         ModelAnimator.look(head_base, state);
 
-		body_base.xRot = Mth.lerp(state.runningAnimation, -15.0f, -50.0f) * ModelAnimator.DEG_TO_RAD;
+        body_base.xRot = Mth.lerp(state.runningAnimation, -15.0f, -50.0f) * ModelAnimator.DEG_TO_RAD;
         tail_base.xRot = Mth.lerp(state.runningAnimation, 5.0f, 30.0f) * ModelAnimator.DEG_TO_RAD;
         tail_tip.xRot = Mth.lerp(state.runningAnimation, 5.0f, 20.0f) * ModelAnimator.DEG_TO_RAD;
         head_base.xRot = Mth.lerp(state.runningAnimation, 7.5f, 35.0f) * ModelAnimator.DEG_TO_RAD;

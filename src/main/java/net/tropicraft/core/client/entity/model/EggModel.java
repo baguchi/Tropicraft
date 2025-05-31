@@ -39,7 +39,7 @@ public class EggModel extends EntityModel<EggRenderState> {
 
     @Override
     public void setupAnim(EggRenderState state) {
-		body.yRot = 0.0f;
+        body.yRot = 0.0f;
         if (state.hatching) {
             body.yRot = Mth.sin(state.ageInTicks * 0.6f) * 0.6f;
             body.xRot = Mth.sin(state.randRotater * 4.0f) * 0.6f;

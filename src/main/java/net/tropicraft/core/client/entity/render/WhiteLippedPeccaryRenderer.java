@@ -17,12 +17,12 @@ public class WhiteLippedPeccaryRenderer extends AgeableMobRenderer<WhiteLippedPe
     }
 
     @Override
-	public LivingEntityRenderState createRenderState() {
+    public LivingEntityRenderState createRenderState() {
         return new LivingEntityRenderState();
     }
 
     @Override
-	public ResourceLocation getTextureLocation(LivingEntityRenderState entity) {
+    public ResourceLocation getTextureLocation(LivingEntityRenderState entity) {
         return TEXTURE;
     }
 }

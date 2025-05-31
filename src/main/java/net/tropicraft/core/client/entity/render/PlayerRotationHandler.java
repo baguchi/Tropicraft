@@ -57,10 +57,10 @@ public class PlayerRotationHandler {
                 float playerHeight = player.getDimensions(Pose.STANDING).height();
                 state.setRenderData(BEACH_FLOAT_KEY, new BeachFloatState(
                         Mth.rotLerp(state.partialTick, beachFloat.yRotO, beachFloat.getYRot()),
-						(float) -attachment.x,
-						(float) (-attachment.y + 13.0 / 16.0),
-						(float) (playerHeight / 2.0 - attachment.z)
-				));
+                        (float) -attachment.x,
+                        (float) (-attachment.y + 13.0 / 16.0),
+                        (float) (playerHeight / 2.0 - attachment.z)
+                ));
             } else if (player.getVehicle() instanceof SeaTurtleEntity turtle) {
                 state.xRot = 10.0f;
 
@@ -68,10 +68,10 @@ public class PlayerRotationHandler {
                 state.setRenderData(TURTLE_KEY, new TurtleState(
                         Mth.rotLerp(state.partialTick, turtle.xRotO, turtle.getXRot()),
                         Mth.rotLerp(state.partialTick, turtle.yHeadRotO, turtle.yHeadRot),
-						(float) sitOffset.x,
-						(float) sitOffset.y,
-						(float) sitOffset.z
-				));
+                        (float) sitOffset.x,
+                        (float) sitOffset.y,
+                        (float) sitOffset.z
+                ));
             }
         });
     }
@@ -96,7 +96,7 @@ public class PlayerRotationHandler {
             stack.pushPose();
 
             // Cancel out player camera rotation
-			Quaternionf rotation = Axis.YN.rotationDegrees(turtleState.yRot)
+            Quaternionf rotation = Axis.YN.rotationDegrees(turtleState.yRot)
                     .mul(Axis.XP.rotationDegrees(turtleState.xRot))
                     .mul(Axis.YP.rotationDegrees(turtleState.yRot));
 
@@ -110,7 +110,7 @@ public class PlayerRotationHandler {
     @SubscribeEvent
     public static void onRenderPlayerPost(RenderPlayerEvent.Post event) {
         PlayerRenderState state = event.getRenderState();
-		if (state.getRenderData(BEACH_FLOAT_KEY) != null || state.getRenderData(TURTLE_KEY) != null) {
+        if (state.getRenderData(BEACH_FLOAT_KEY) != null || state.getRenderData(TURTLE_KEY) != null) {
             event.getPoseStack().popPose();
         }
     }
@@ -118,7 +118,7 @@ public class PlayerRotationHandler {
     @SubscribeEvent
     public static void onRenderPlayerSpecials(RenderNameTagEvent.CanRender event) {
         BeachFloatState floatState = event.getEntityRenderState().getRenderData(BEACH_FLOAT_KEY);
-		if (floatState != null) {
+        if (floatState != null) {
             event.setCanRender(TriState.FALSE);
         }
     }

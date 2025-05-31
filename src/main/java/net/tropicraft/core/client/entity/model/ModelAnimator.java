@@ -1,6 +1,5 @@
 package net.tropicraft.core.client.entity.model;
 
-import net.minecraft.client.model.BabyModelTransform;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.PartPose;
@@ -15,7 +14,6 @@ import org.joml.Vector3f;
 
 import javax.annotation.Nullable;
 import java.util.Map;
-import java.util.Set;
 import java.util.function.UnaryOperator;
 
 public final class ModelAnimator {
@@ -109,7 +107,7 @@ public final class ModelAnimator {
         setRotation(part, newAbsoluteRotation.premul(parentRotation.conjugate()));
     }
 
-	public static final class Cycle implements AutoCloseable {
+    public static final class Cycle implements AutoCloseable {
         private float time;
         private float scale;
 
@@ -141,7 +139,7 @@ public final class ModelAnimator {
             if (time * speed % interval > 1.0f) {
                 return 0.0f;
             }
-			return scale * Mth.square(eval(speed, 1.0f));
+            return scale * Mth.square(eval(speed, 1.0f));
         }
 
         public float periodic(float interval, float fade, float length, float scale) {
@@ -161,7 +159,7 @@ public final class ModelAnimator {
 
         public float evalSkewed(float speed, float scale, float delay, float offset, float skew, float squareness) {
             float x = TAU * (time * speed - delay);
-			float modifiedSin = squareness * Mth.sin(x);
+            float modifiedSin = squareness * Mth.sin(x);
             float value = modifiedSin / Mth.sqrt(Mth.square(skew + Mth.cos(x)) + Mth.square(modifiedSin));
             return (value * scale + offset) * this.scale;
         }

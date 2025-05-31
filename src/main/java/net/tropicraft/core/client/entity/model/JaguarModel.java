@@ -119,9 +119,9 @@ public class JaguarModel extends EntityModel<LivingEntityRenderState> {
         return LayerDefinition.create(mesh, 128, 128);
     }
 
-	public static LayerDefinition createBaby() {
-		return create().apply(ModelAnimator.hierarchicalBaby("head_base", 0.5f));
-	}
+    public static LayerDefinition createBaby() {
+        return create().apply(ModelAnimator.hierarchicalBaby("head_base", 0.5f));
+    }
 
     @Override
     public void setupAnim(LivingEntityRenderState state) {

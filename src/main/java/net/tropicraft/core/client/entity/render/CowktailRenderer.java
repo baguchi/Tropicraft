@@ -33,8 +33,8 @@ public class CowktailRenderer extends MobRenderer<CowktailEntity, CowktailRender
     @Override
     public ResourceLocation getTextureLocation(CowktailRenderState state) {
         return switch (state.type) {
-			case IRIS -> IRIS_TEXTURE;
-			case ANEMONE -> ANEMONE_TEXTURE;
-		};
+            case IRIS -> IRIS_TEXTURE;
+            case ANEMONE -> ANEMONE_TEXTURE;
+        };
     }
 }

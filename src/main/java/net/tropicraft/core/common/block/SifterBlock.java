@@ -56,7 +56,7 @@ public class SifterBlock extends BaseEntityBlock {
         }
 
         if (!level.isClientSide() && level.getBlockEntity(pos) instanceof SifterBlockEntity sifter && !stack.isEmpty() && !sifter.isSifting()) {
-			sifter.addItemToSifter(stack.consumeAndReturn(1, player));
+            sifter.addItemToSifter(stack.consumeAndReturn(1, player));
             sifter.startSifting();
             return InteractionResult.CONSUME;
         }

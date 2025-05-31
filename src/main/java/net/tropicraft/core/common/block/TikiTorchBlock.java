@@ -111,11 +111,11 @@ public final class TikiTorchBlock extends Block {
 
     @Override
     protected BlockState updateShape(BlockState state, LevelReader level, ScheduledTickAccess scheduledTickAccess, BlockPos pos, Direction direction, BlockPos neighborPos, BlockState neighborState, RandomSource random) {
-		if (direction.getAxis() == Axis.Y && !canSurvive(state, level, pos)) {
-			return Blocks.AIR.defaultBlockState();
-		}
+        if (direction.getAxis() == Axis.Y && !canSurvive(state, level, pos)) {
+            return Blocks.AIR.defaultBlockState();
+        }
         return super.updateShape(state, level, scheduledTickAccess, pos, direction, neighborPos, neighborState, random);
-	}
+    }
 
     @Override
     public void setPlacedBy(Level worldIn, BlockPos pos, BlockState state, @Nullable LivingEntity placer, ItemStack stack) {

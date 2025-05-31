@@ -4,5 +4,5 @@ import net.minecraft.client.renderer.entity.state.LivingEntityRenderState;
 import net.tropicraft.core.common.entity.passive.CowktailEntity;
 
 public class CowktailRenderState extends LivingEntityRenderState {
-	public CowktailEntity.Type type = CowktailEntity.Type.IRIS;
+    public CowktailEntity.Type type = CowktailEntity.Type.IRIS;
 }

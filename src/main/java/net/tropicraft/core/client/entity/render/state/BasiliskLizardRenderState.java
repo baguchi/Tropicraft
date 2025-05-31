@@ -3,5 +3,5 @@ package net.tropicraft.core.client.entity.render.state;
 import net.minecraft.client.renderer.entity.state.LivingEntityRenderState;
 
 public class BasiliskLizardRenderState extends LivingEntityRenderState {
-	public float runningAnimation;
+    public float runningAnimation;
 }
