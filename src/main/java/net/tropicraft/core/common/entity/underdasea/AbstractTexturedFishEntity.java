@@ -47,7 +47,7 @@ public abstract class AbstractTexturedFishEntity extends AbstractFish {
     @Override
     public void readAdditionalSaveData(CompoundTag nbt) {
         super.readAdditionalSaveData(nbt);
-        setTexture(nbt.getString("Texture"));
+        setTexture(nbt.getStringOr("Texture", getDefaultTexture()));
     }
 
     public void setTexture(String textureName) {
