@@ -24,15 +24,9 @@ public class SeaTurtleRenderer extends MobRenderer<SeaTurtleEntity, SeaTurtleMod
         float existingTime = (float) turtle.tickCount / 4000;
         if (turtle.tickCount < 30) {
             shadowStrength = 0.5f;
-            shadowRadius = 0.2f + existingTime;
-            if (shadowRadius > 0.5f) {
-                shadowRadius = 0.5f;
-            }
+            shadowRadius = Math.min(0.2f + existingTime, 0.5f);
         } else {
-            scale = 0.3f + existingTime;
-            if (scale > 1.0f) {
-                scale = 1.0f;
-            }
+            scale = Math.min(0.3f + existingTime, 1.0f);
         }
         if (turtle.isMature()) {
             scale = 1.0f;

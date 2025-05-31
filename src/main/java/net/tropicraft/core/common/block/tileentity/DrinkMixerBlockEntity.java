@@ -56,18 +56,12 @@ public class DrinkMixerBlockEntity extends BlockEntity implements IMachineBlock 
     @Override
     protected void loadAdditional(CompoundTag nbt, HolderLookup.Provider registries) {
         super.loadAdditional(nbt, registries);
-        ticks = nbt.getInt("MixTicks");
-        mixing = nbt.getBoolean("Mixing");
+        ticks = nbt.getIntOr("MixTicks", 0);
+        mixing = nbt.getBooleanOr("Mixing", false);
 
-        ItemStack.SINGLE_ITEM_CODEC.listOf().parse(registries.createSerializationContext(NbtOps.INSTANCE), nbt.get("ingredients"))
-                .resultOrPartial(error -> LOGGER.error("Failed to parse drink mixer ingredients: '{}'", error))
-                .ifPresent(this::setDrinkIngredients);
-
-        if (nbt.contains("Result")) {
-            result = ItemStack.parse(registries, nbt.getCompound("Result")).orElse(ItemStack.EMPTY);
-        } else {
-            result = ItemStack.EMPTY;
-        }
+        RegistryOps<Tag> ops = registries.createSerializationContext(NbtOps.INSTANCE);
+        setDrinkIngredients(nbt.read("ingredients", ItemStack.SINGLE_ITEM_CODEC.listOf(), ops).orElse(List.of()));
+        result = nbt.read("Result", ItemStack.CODEC, ops).orElse(ItemStack.EMPTY);
     }
 
     @Override
@@ -77,11 +71,11 @@ public class DrinkMixerBlockEntity extends BlockEntity implements IMachineBlock 
         nbt.putInt("MixTicks", ticks);
         nbt.putBoolean("Mixing", mixing);
 
-        RegistryOps<Tag> registryOps = registries.createSerializationContext(NbtOps.INSTANCE);
-        nbt.put("ingredients", ItemStack.SINGLE_ITEM_CODEC.listOf().encodeStart(registryOps, drinkIngredients).getOrThrow());
+        RegistryOps<Tag> ops = registries.createSerializationContext(NbtOps.INSTANCE);
+        nbt.store("ingredients", ItemStack.SINGLE_ITEM_CODEC.listOf(), ops, drinkIngredients);
 
         if (!result.isEmpty()) {
-            nbt.put("Result", result.save(registries, new CompoundTag()));
+            nbt.store("Result", ItemStack.CODEC, ops, result);
         }
     }
 
@@ -147,7 +141,7 @@ public class DrinkMixerBlockEntity extends BlockEntity implements IMachineBlock 
         dropItem(result, at);
 
         for (ItemStack ingredient : drinkIngredients) {
-            ItemStack container = ingredient.getCraftingRemainingItem();
+            ItemStack container = ingredient.getCraftingRemainder();
             if (!container.isEmpty()) {
                 dropItem(container, at);
             }

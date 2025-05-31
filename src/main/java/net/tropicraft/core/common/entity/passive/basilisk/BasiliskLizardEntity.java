@@ -30,7 +30,6 @@ import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.pathfinder.PathType;
 import net.minecraft.world.phys.Vec3;
 import net.tropicraft.core.common.BinaryAnimation;
-import net.tropicraft.core.common.Easings;
 
 public final class BasiliskLizardEntity extends Animal {
     private static final EntityDataAccessor<Boolean> RUNNING = SynchedEntityData.defineId(BasiliskLizardEntity.class, EntityDataSerializers.BOOLEAN);
@@ -44,7 +43,7 @@ public final class BasiliskLizardEntity extends Animal {
     private final BinaryAnimation runningAnimation = new BinaryAnimation(
             SharedConstants.TICKS_PER_SECOND / 2,
             SharedConstants.TICKS_PER_SECOND / 4,
-            Easings::inOutSine
+            Mth::easeInOutSine
     );
 
     public BasiliskLizardEntity(EntityType<? extends BasiliskLizardEntity> type, Level world) {

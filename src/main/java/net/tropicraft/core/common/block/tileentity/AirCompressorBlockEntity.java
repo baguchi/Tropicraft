@@ -4,6 +4,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtOps;
 import net.minecraft.network.Connection;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
@@ -56,13 +57,8 @@ public class AirCompressorBlockEntity extends BlockEntity implements IMachineBlo
     @Override
     public void loadAdditional(CompoundTag nbt, HolderLookup.Provider registries) {
         super.loadAdditional(nbt, registries);
-        compressing = nbt.getBoolean("Compressing");
-
-        if (nbt.contains("Tank")) {
-            setTank(ItemStack.parse(registries, nbt.getCompound("Tank")).orElse(ItemStack.EMPTY));
-        } else {
-            setTank(ItemStack.EMPTY);
-        }
+        compressing = nbt.getBooleanOr("Compressing", false);
+        setTank(nbt.read("Tank", ItemStack.CODEC, registries.createSerializationContext(NbtOps.INSTANCE)).orElse(ItemStack.EMPTY));
     }
 
     @Override
@@ -71,7 +67,7 @@ public class AirCompressorBlockEntity extends BlockEntity implements IMachineBlo
         nbt.putBoolean("Compressing", compressing);
 
         if (!stack.isEmpty()) {
-            nbt.put("Tank", stack.save(registries, new CompoundTag()));
+            nbt.store("Tank", ItemStack.CODEC, registries.createSerializationContext(NbtOps.INSTANCE), stack);
         }
     }
 
@@ -132,6 +128,12 @@ public class AirCompressorBlockEntity extends BlockEntity implements IMachineBlo
         syncInventory();
         ticks = 0;
         compressing = false;
+    }
+
+    @Override
+    public void preRemoveSideEffects(BlockPos pos, BlockState state) {
+        super.preRemoveSideEffects(pos, state);
+        ejectTank();
     }
 
     public boolean isDoneCompressing() {

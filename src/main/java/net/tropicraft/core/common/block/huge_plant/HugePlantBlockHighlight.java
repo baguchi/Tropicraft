@@ -3,8 +3,8 @@ package net.tropicraft.core.common.block.huge_plant;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
-import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.ShapeRenderer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
@@ -39,7 +39,7 @@ public final class HugePlantBlockHighlight {
 
         Vec3 view = event.getCamera().getPosition();
         AABB aabb = shape.asAabb().move(-view.x, -view.y, -view.z);
-        LevelRenderer.renderLineBox(event.getPoseStack(), builder, aabb, 0.0f, 0.0f, 0.0f, 0.4f);
+        ShapeRenderer.renderLineBox(event.getPoseStack(), builder, aabb, 0.0f, 0.0f, 0.0f, 0.4f);
 
         event.setCanceled(true);
     }

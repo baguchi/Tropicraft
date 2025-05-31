@@ -33,7 +33,7 @@ public class BambooChestBlockEntity extends ChestBlockEntity {
     @Override
     protected void loadAdditional(CompoundTag compound, HolderLookup.Provider registries) {
         super.loadAdditional(compound, registries);
-        unbreakable = compound.getBoolean("unbreakable");
+        unbreakable = compound.getBooleanOr("unbreakable", false);
     }
 
     @Override

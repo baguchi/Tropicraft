@@ -2,12 +2,12 @@ package net.tropicraft.core.common.entity.passive;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.tags.BlockTags;
+import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.AgeableMob;
+import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Mob;
-import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.FloatGoal;
@@ -20,7 +20,6 @@ import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.entity.animal.FlyingAnimal;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.Blocks;
@@ -28,12 +27,11 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.pathfinder.PathType;
 import net.minecraft.world.phys.Vec3;
 import net.tropicraft.core.common.BinaryAnimation;
-import net.tropicraft.core.common.Easings;
 import net.tropicraft.core.common.TropicraftTags;
 import net.tropicraft.core.common.entity.ai.BirdWanderInTreesGoal;
 
 public class SmallBirdEntity extends Animal implements FlyingAnimal {
-	private final BinaryAnimation flightAnimation = new BinaryAnimation(3, Easings::inOutSine);
+	private final BinaryAnimation flightAnimation = new BinaryAnimation(3, Mth::easeInOutSine);
 
 	public SmallBirdEntity(EntityType<? extends SmallBirdEntity> type, Level world) {
 		super(type, world);
@@ -58,7 +56,6 @@ public class SmallBirdEntity extends Animal implements FlyingAnimal {
 		FlyingPathNavigation navigator = new SmallBirdPathNavigation(this, level);
 		navigator.setCanOpenDoors(false);
 		navigator.setCanFloat(true);
-		navigator.setCanPassDoors(true);
 		return navigator;
 	}
 
@@ -67,7 +64,7 @@ public class SmallBirdEntity extends Animal implements FlyingAnimal {
 		goalSelector.addGoal(0, new PanicGoal(this, 1.25));
 		goalSelector.addGoal(0, new FloatGoal(this));
 		goalSelector.addGoal(1, new LookAtPlayerGoal(this, Player.class, 8.0f));
-		goalSelector.addGoal(2, new TemptGoal(this, 1.25, Ingredient.of(TropicraftTags.Items.FRUITS), false));
+		goalSelector.addGoal(2, new TemptGoal(this, 1.25, item -> item.is(TropicraftTags.Items.FRUITS), false));
 		goalSelector.addGoal(3, new BirdWanderInTreesGoal(this, 1.0));
 	}
 

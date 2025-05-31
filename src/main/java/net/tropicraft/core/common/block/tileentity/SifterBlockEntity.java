@@ -5,8 +5,11 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.core.HolderSet;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtOps;
+import net.minecraft.nbt.Tag;
 import net.minecraft.network.Connection;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
+import net.minecraft.resources.RegistryOps;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.item.ItemEntity;
@@ -132,7 +135,7 @@ public class SifterBlockEntity extends BlockEntity {
     private ItemStack getCommonItem() {
         // Random from -1 to size-1
 
-        HolderSet.Named<Item> tag = level.registryAccess().registryOrThrow(Registries.ITEM).getOrCreateTag(TropicraftTags.Items.SHELLS);
+        HolderSet.Named<Item> tag = level.registryAccess().lookupOrThrow(Registries.ITEM).getOrThrow(TropicraftTags.Items.SHELLS);
 
         int shellIndex = rand.nextInt(tag.size() + 1) - 1;
         if (shellIndex < 0) {
@@ -155,7 +158,7 @@ public class SifterBlockEntity extends BlockEntity {
     }
 
     public void addItemToSifter(ItemStack stack) {
-        siftItem = stack.copy().split(1);
+        siftItem = stack.copyWithCount(1);
         syncInventory();
     }
 
@@ -193,14 +196,11 @@ public class SifterBlockEntity extends BlockEntity {
     @Override
     public void loadAdditional(CompoundTag nbt, HolderLookup.Provider registries) {
         super.loadAdditional(nbt, registries);
-        isSifting = nbt.getBoolean("isSifting");
-        currentSiftTime = nbt.getInt("currentSiftTime");
+        isSifting = nbt.getBooleanOr("isSifting", false);
+        currentSiftTime = nbt.getIntOr("currentSiftTime", 0);
 
-        if (nbt.contains("Item", 10)) {
-            siftItem = ItemStack.parse(registries, nbt.getCompound("Item")).orElse(ItemStack.EMPTY);
-        } else {
-            siftItem = ItemStack.EMPTY;
-        }
+        RegistryOps<Tag> ops = registries.createSerializationContext(NbtOps.INSTANCE);
+        siftItem = nbt.read("Item", ItemStack.CODEC, ops).orElse(ItemStack.EMPTY);
     }
 
     @Override
@@ -209,7 +209,7 @@ public class SifterBlockEntity extends BlockEntity {
         nbt.putBoolean("isSifting", isSifting);
         nbt.putInt("currentSiftTime", currentSiftTime);
         if (!siftItem.isEmpty()) {
-            nbt.put("Item", siftItem.save(registries, new CompoundTag()));
+            nbt.store("Item", ItemStack.CODEC, registries.createSerializationContext(NbtOps.INSTANCE), siftItem);
         }
     }
 

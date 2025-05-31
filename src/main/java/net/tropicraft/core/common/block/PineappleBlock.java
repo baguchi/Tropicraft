@@ -70,7 +70,7 @@ public class PineappleBlock extends TallFlowerBlock implements BonemealableBlock
 
     @Override
     public void tick(BlockState state, ServerLevel world, BlockPos pos, RandomSource random) {
-        if (pos.getY() > world.getMaxBuildHeight() - 2) {
+        if (pos.getY() >= world.getMaxY()) {
             return;
         }
 

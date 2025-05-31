@@ -9,8 +9,8 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EntitySpawnReason;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.SpawnGroupData;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
@@ -23,7 +23,8 @@ import net.minecraft.world.level.ServerLevelAccessor;
 import javax.annotation.Nullable;
 
 public class MarlinEntity extends AbstractFish {
-
+    // TODO: Replace with variant enum
+    private static final String DEFAULT_TEXTURE = "marlin";
     private static final EntityDataAccessor<String> TEXTURE_NAME = SynchedEntityData.defineId(MarlinEntity.class, EntityDataSerializers.STRING);
 
     public MarlinEntity(EntityType<? extends AbstractFish> type, Level world) {
@@ -34,7 +35,7 @@ public class MarlinEntity extends AbstractFish {
     @Override
     protected void defineSynchedData(SynchedEntityData.Builder builder) {
         super.defineSynchedData(builder);
-        builder.define(TEXTURE_NAME, "marlin");
+        builder.define(TEXTURE_NAME, DEFAULT_TEXTURE);
     }
 
     public static AttributeSupplier.Builder createAttributes() {
@@ -63,7 +64,7 @@ public class MarlinEntity extends AbstractFish {
     @Override
     public void readAdditionalSaveData(CompoundTag nbt) {
         super.readAdditionalSaveData(nbt);
-        setTexture(nbt.getString("Texture"));
+        setTexture(nbt.getStringOr("Texture", DEFAULT_TEXTURE));
     }
 
     @Override

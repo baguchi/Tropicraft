@@ -5,6 +5,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.world.Difficulty;
@@ -22,9 +23,6 @@ import net.minecraft.world.entity.ai.goal.WaterAvoidingRandomStrollGoal;
 import net.minecraft.world.entity.ai.goal.target.HurtByTargetGoal;
 import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.PickaxeItem;
-import net.minecraft.world.item.Tier;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import net.tropicraft.core.common.block.TropicraftBlocks;
@@ -107,7 +105,7 @@ public class EIHEntity extends PathfinderMob {
     @Override
     public void readAdditionalSaveData(CompoundTag compound) {
         super.readAdditionalSaveData(compound);
-        setState(compound.getByte("State"));
+        setState(compound.getByteOr("State", (byte) 0));
     }
 
     @Override
@@ -147,7 +145,7 @@ public class EIHEntity extends PathfinderMob {
                     if (!player.getAbilities().instabuild && !player.isSpectator()) {
                         if (closerThan(player, 10.0f)) {
                             setAwake(true);
-                            if (isAware() && player.getInventory().getSelected().is(TropicraftBlocks.CHUNK.asItem())) {
+                            if (isAware() && player.getInventory().getSelectedItem().is(TropicraftBlocks.CHUNK.asItem())) {
                                 setAngry(true);
                                 setImmobile(false);
                             }
@@ -239,17 +237,17 @@ public class EIHEntity extends PathfinderMob {
     }
 
     @Override
-    public boolean hurt(DamageSource source, float amount) {
+    public boolean hurtServer(ServerLevel level, DamageSource source, float amount) {
         if (source.is(DamageTypeTags.BYPASSES_INVULNERABILITY)) {
-            return super.hurt(source, amount);
+            return super.hurtServer(level, source, amount);
         }
 
         if (source.getDirectEntity() instanceof Player player) {
             if (player.getAbilities().instabuild || player.isSpectator()) {
-                return super.hurt(source, amount);
+                return super.hurtServer(level, source, amount);
             }
             if (player.getMainHandItem().isCorrectToolForDrops(TropicraftBlocks.CHUNK.getDefaultState())) {
-                return super.hurt(source, amount);
+                return super.hurtServer(level, source, amount);
             } else {
                 playSound(Sounds.HEAD_LAUGHING.get(), getSoundVolume(), getVoicePitch());
                 setLastHurtByMob(player);

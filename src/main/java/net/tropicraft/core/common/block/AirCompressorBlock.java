@@ -81,36 +81,26 @@ public final class AirCompressorBlock extends BaseEntityBlock {
     }
 
     @Override
-    protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
+    protected InteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
         if (level.isClientSide) {
-            return ItemInteractionResult.SUCCESS;
+            return InteractionResult.SUCCESS;
         }
 
         if (!(level.getBlockEntity(pos) instanceof AirCompressorBlockEntity compressor)) {
-            return ItemInteractionResult.FAIL;
+            return InteractionResult.FAIL;
         }
 
         if (compressor.isDoneCompressing()) {
-            return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+            return InteractionResult.TRY_WITH_EMPTY_HAND;
         }
 
         ItemStack ingredientStack = stack.copyWithCount(1);
 
         if (compressor.addTank(ingredientStack)) {
-            player.getInventory().removeItem(player.getInventory().selected, 1);
+            player.getInventory().removeItem(player.getInventory().getSelectedSlot(), 1);
         }
 
-        return ItemInteractionResult.CONSUME;
-    }
-
-    @Override
-    public void onRemove(BlockState state, Level world, BlockPos pos, BlockState newState, boolean isMoving) {
-        if (!world.isClientSide) {
-            AirCompressorBlockEntity te = (AirCompressorBlockEntity) world.getBlockEntity(pos);
-            te.ejectTank();
-        }
-
-        super.onRemove(state, world, pos, newState, isMoving);
+        return InteractionResult.CONSUME;
     }
 
     @Override

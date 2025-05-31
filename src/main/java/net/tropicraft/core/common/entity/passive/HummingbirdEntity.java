@@ -73,7 +73,6 @@ public class HummingbirdEntity extends Animal implements FlyingAnimal {
         FlyingPathNavigation navigator = new FlyingPathNavigation(this, world);
         navigator.setCanOpenDoors(false);
         navigator.setCanFloat(true);
-        navigator.setCanPassDoors(true);
         return navigator;
     }
 
@@ -81,7 +80,7 @@ public class HummingbirdEntity extends Animal implements FlyingAnimal {
     protected void registerGoals() {
         goalSelector.addGoal(0, new FloatGoal(this));
         goalSelector.addGoal(1, new FlyAwayInPanicGoal());
-        goalSelector.addGoal(2, new TemptGoal(this, 1.25, Ingredient.of(Items.SUGAR), false));
+        goalSelector.addGoal(2, new TemptGoal(this, 1.25, item -> item.is(Items.SUGAR), false));
         goalSelector.addGoal(3, new LookAtPlayerGoal(this, Player.class, 8.0f));
         goalSelector.addGoal(4, new FeedFromPlantsGoal());
         goalSelector.addGoal(5, new FlyAroundRandomlyGoal());
@@ -99,7 +98,7 @@ public class HummingbirdEntity extends Animal implements FlyingAnimal {
     }
 
     @Override
-    public boolean causeFallDamage(float pFallDistance, float pMultiplier, DamageSource pSource) {
+    public boolean causeFallDamage(double distance, float multiplier, DamageSource source) {
         return false;
     }
 
@@ -156,7 +155,7 @@ public class HummingbirdEntity extends Animal implements FlyingAnimal {
     @Override
     public void readAdditionalSaveData(CompoundTag nbt) {
         super.readAdditionalSaveData(nbt);
-        pollenCollected = nbt.getByte("pollen_collected");
+        pollenCollected = nbt.getByteOr("pollen_collected", (byte) 0);
     }
 
     final class FeedFromPlantsGoal extends FlyingGoal {

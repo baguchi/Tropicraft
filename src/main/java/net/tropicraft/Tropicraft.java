@@ -8,13 +8,12 @@ import com.tterrag.registrate.providers.DataProviderInitializer;
 import com.tterrag.registrate.providers.ProviderType;
 import com.tterrag.registrate.providers.RegistrateTagsProvider;
 import net.minecraft.Util;
-import net.minecraft.client.resources.model.BlockStateModelLoader;
+import net.minecraft.client.resources.model.BlockStateDefinitions;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.data.PackOutput;
-import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.PackType;
@@ -31,13 +30,12 @@ import net.neoforged.bus.api.IEventBus;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.ModList;
-import net.neoforged.fml.ModLoadingContext;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.config.ModConfig;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.neoforged.fml.loading.FMLEnvironment;
-import net.neoforged.neoforge.client.event.RegisterClientReloadListenersEvent;
+import net.neoforged.neoforge.client.event.AddClientReloadListenersEvent;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.data.event.GatherDataEvent;
 import net.neoforged.neoforge.event.AddPackFindersEvent;
@@ -173,10 +171,10 @@ public class Tropicraft {
         );
     }
 
-    private void gatherData(GatherDataEvent event) {
+    private void gatherData(GatherDataEvent.Server event) {
         DataGenerator generator = event.getGenerator();
         PackOutput output = generator.getPackOutput();
-        generator.addProvider(event.includeServer(), new StructureConverter(ID, output, event.getInputs()));
+        generator.addProvider(true, new StructureConverter(ID, output, event.getInputs()));
     }
 
     private void registerCommands(RegisterCommandsEvent event) {
@@ -192,11 +190,11 @@ public class Tropicraft {
     @EventBusSubscriber(modid = ID, value = Dist.CLIENT, bus = EventBusSubscriber.Bus.MOD)
     private static class ClientHandler {
         @SubscribeEvent
-        public static void registerReloadListeners(RegisterClientReloadListenersEvent event) {
+        public static void registerReloadListeners(AddClientReloadListenersEvent event) {
             // Hack in our item frame models the way vanilla does
             StateDefinition<Block, BlockState> frameState = new StateDefinition.Builder<Block, BlockState>(Blocks.AIR).add(BooleanProperty.create("map")).create(Block::defaultBlockState, BlockState::new);
-            BlockStateModelLoader.STATIC_DEFINITIONS = Util.copyAndPut(
-                    BlockStateModelLoader.STATIC_DEFINITIONS,
+            BlockStateDefinitions.STATIC_DEFINITIONS = Util.copyAndPut(
+                    BlockStateDefinitions.STATIC_DEFINITIONS,
                     TropicraftItems.BAMBOO_ITEM_FRAME.getId(), frameState
             );
         }

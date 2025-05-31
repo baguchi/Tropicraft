@@ -85,31 +85,31 @@ public final class DrinkMixerBlock extends BaseEntityBlock {
     }
 
     @Override
-    protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
+    protected InteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
         if (level.isClientSide) {
-            return ItemInteractionResult.SUCCESS;
+            return InteractionResult.SUCCESS;
         }
 
         if (!(level.getBlockEntity(pos) instanceof DrinkMixerBlockEntity mixer)) {
-            return ItemInteractionResult.FAIL;
+            return InteractionResult.FAIL;
         }
 
         if (mixer.isDoneMixing()) {
-            return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+            return InteractionResult.TRY_WITH_EMPTY_HAND;
         }
 
         ItemStack ingredientStack = stack.copyWithCount(1);
 
         if (mixer.addToMixer(level, ingredientStack)) {
-            if (!player.isCreative()) {
-                player.getInventory().removeItem(player.getInventory().selected, 1);
+            if (!player.hasInfiniteMaterials()) {
+                player.getInventory().removeItem(player.getInventory().getSelectedSlot(), 1);
             }
         }
 
         if (ingredientStack.is(TropicraftItems.BAMBOO_MUG) && mixer.canMix()) {
             mixer.startMixing();
-            if (!player.isCreative()) {
-                player.getInventory().removeItem(player.getInventory().selected, 1);
+            if (!player.hasInfiniteMaterials()) {
+                player.getInventory().removeItem(player.getInventory().getSelectedSlot(), 1);
             }
 
             Holder<Drink> craftedDrink = Drink.getMatchingDrinkByItems(level.registryAccess(), mixer.getDrinkIngredients());
@@ -119,7 +119,7 @@ public final class DrinkMixerBlock extends BaseEntityBlock {
             }
         }
 
-        return ItemInteractionResult.CONSUME;
+        return InteractionResult.CONSUME;
     }
 
     @Override

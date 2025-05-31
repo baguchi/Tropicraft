@@ -227,7 +227,7 @@ public class VolcanoBlockEntity extends BlockEntity {
             double x = worldPosition.getX() + getLevel().random.nextInt(radius) * (getLevel().random.nextBoolean() ? -1 : 1);
             double y = lavaLevel + getLevel().random.nextInt(6);
             double z = worldPosition.getZ() + getLevel().random.nextInt(radius) * (getLevel().random.nextBoolean() ? -1 : 1);
-            getLevel().addParticle(ParticleTypes.LARGE_SMOKE, true, x, y, z, 0.0, 0.7, 0.0);
+            getLevel().addParticle(ParticleTypes.LARGE_SMOKE, true, true, x, y, z, 0.0, 0.7, 0.0);
             //System.out.println("Spewing smoke " + x + " " + z);
         }
     }
@@ -294,7 +294,7 @@ public class VolcanoBlockEntity extends BlockEntity {
         int x = worldPosition.getX();
         int z = worldPosition.getZ();
         int minY = LAVA_BASE_LEVEL + heightOffset;
-        int maxY = level.getMaxBuildHeight();
+        int maxY = level.getMaxY();
         for (BlockPos pos : BlockPos.betweenClosed(x, minY, z, x, maxY, z)) {
             if (!level.getFluidState(pos).is(FluidTags.LAVA)) {
                 lavaLevel = pos.getY() - 1;
@@ -322,22 +322,22 @@ public class VolcanoBlockEntity extends BlockEntity {
     @Override
     public void loadAdditional(CompoundTag nbt, HolderLookup.Provider registries) {
         super.loadAdditional(nbt, registries);
-        heightOffset = nbt.getInt("height_offset");
-        state = VolcanoState.valueOf(nbt.getString("state"));
-        ticksUntilDormant = nbt.getInt("ticksUntilDormant");
-        ticksUntilSmoking = nbt.getInt("ticksUntilSmoking");
-        ticksUntilRising = nbt.getInt("ticksUntilRising");
-        ticksUntilEruption = nbt.getInt("ticksUntilEruption");
-        ticksUntilRetreating = nbt.getInt("ticksUntilRetreating");
-        lavaLevel = nbt.getInt("lavaLevel");
-        radius = nbt.getInt("radius");
+        heightOffset = nbt.getIntOr("height_offset", Integer.MIN_VALUE);
+        state = nbt.read("state", VolcanoState.CODEC).orElse(VolcanoState.DORMANT);
+        ticksUntilDormant = nbt.getIntOr("ticksUntilDormant", VolcanoState.getTimeBefore(VolcanoState.DORMANT));
+        ticksUntilSmoking = nbt.getIntOr("ticksUntilSmoking", VolcanoState.getTimeBefore(VolcanoState.SMOKING));
+        ticksUntilRising = nbt.getIntOr("ticksUntilRising", VolcanoState.getTimeBefore(VolcanoState.RISING));
+        ticksUntilEruption = nbt.getIntOr("ticksUntilEruption", VolcanoState.getTimeBefore(VolcanoState.ERUPTING));
+        ticksUntilRetreating = nbt.getIntOr("ticksUntilRetreating", VolcanoState.getTimeBefore(VolcanoState.RETREATING));
+        lavaLevel = nbt.getIntOr("lavaLevel", -1);
+        radius = nbt.getIntOr("radius", -1);
     }
 
     @Override
     public void saveAdditional(CompoundTag nbt, HolderLookup.Provider registries) {
         super.saveAdditional(nbt, registries);
         nbt.putInt("height_offset", heightOffset);
-        nbt.putString("state", state.name());
+        nbt.store("state", VolcanoState.CODEC, state);
         nbt.putInt("ticksUntilDormant", ticksUntilDormant);
         nbt.putInt("ticksUntilSmoking", ticksUntilSmoking);
         nbt.putInt("ticksUntilRising", ticksUntilRising);

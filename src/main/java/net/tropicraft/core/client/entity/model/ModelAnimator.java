@@ -1,12 +1,22 @@
 package net.tropicraft.core.client.entity.model;
 
+import net.minecraft.client.model.BabyModelTransform;
+import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.geom.ModelPart;
+import net.minecraft.client.model.geom.PartPose;
+import net.minecraft.client.model.geom.builders.MeshDefinition;
+import net.minecraft.client.model.geom.builders.MeshTransformer;
+import net.minecraft.client.model.geom.builders.PartDefinition;
+import net.minecraft.client.renderer.entity.state.LivingEntityRenderState;
 import net.minecraft.util.Mth;
 import org.joml.Matrix3f;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
 import javax.annotation.Nullable;
+import java.util.Map;
+import java.util.Set;
+import java.util.function.UnaryOperator;
 
 public final class ModelAnimator {
     static final float PI = (float) Math.PI;
@@ -16,9 +26,45 @@ public final class ModelAnimator {
     @Nullable
     static Cycle cycle;
 
+    public static MeshTransformer scaling(float scaleX, float scaleY, float scaleZ) {
+        float offsetY = -EntityModel.MODEL_Y_OFFSET * 16.0f * (1.0f - scaleY);
+        return part -> part.transformed(pose -> pose.scaled(scaleX, scaleY, scaleZ).translated(0.0f, offsetY, 0.0f));
+    }
+
+    public static MeshTransformer hierarchicalBaby(String headName, float scale) {
+        MeshTransformer bodyScaling = MeshTransformer.scaling(scale);
+        return mesh -> bodyScaling.apply(
+                transformChildPart(mesh, headName, pose -> pose.scaled(scale))
+        );
+    }
+
+    private static MeshDefinition transformChildPart(MeshDefinition mesh, String targetName, UnaryOperator<PartPose> targetTransformer) {
+        MeshDefinition result = new MeshDefinition();
+        for (Map.Entry<String, PartDefinition> entry : mesh.getRoot().getChildren()) {
+            result.getRoot().addOrReplaceChild(entry.getKey(), transformChildPart(entry.getValue(), targetName, targetTransformer));
+        }
+        return result;
+    }
+
+    private static PartDefinition transformChildPart(PartDefinition part, String targetName, UnaryOperator<PartPose> targetTransformer) {
+        PartDefinition result = part.transformed(pose -> pose);
+        for (Map.Entry<String, PartDefinition> child : part.getChildren()) {
+            if (child.getKey().equals(targetName)) {
+                result.addOrReplaceChild(targetName, child.getValue().transformed(targetTransformer));
+            } else {
+                result.addOrReplaceChild(child.getKey(), transformChildPart(child.getValue(), targetName, targetTransformer));
+            }
+        }
+        return result;
+    }
+
     public static void look(ModelPart part, float yaw, float pitch) {
         part.xRot = pitch * DEG_TO_RAD;
         part.yRot = yaw * DEG_TO_RAD;
+    }
+
+    public static void look(ModelPart part, LivingEntityRenderState renderState) {
+        look(part, renderState.yRot, renderState.xRot);
     }
 
     public static Cycle cycle(float time, float scale) {
@@ -63,7 +109,7 @@ public final class ModelAnimator {
         setRotation(part, newAbsoluteRotation.premul(parentRotation.conjugate()));
     }
 
-    public static final class Cycle implements AutoCloseable {
+	public static final class Cycle implements AutoCloseable {
         private float time;
         private float scale;
 

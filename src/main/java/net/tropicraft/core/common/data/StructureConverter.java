@@ -125,7 +125,7 @@ public class StructureConverter implements DataProvider {
         CompoundTag updatedTag = DataFixTypes.STRUCTURE.update(DataFixers.getDataFixer(), tag, dataVersion, currentVersion);
 
         StructureTemplate template = new StructureTemplate();
-        template.load(BuiltInRegistries.BLOCK.asLookup(), updatedTag);
+        template.load(BuiltInRegistries.BLOCK, updatedTag);
         return template.save(new CompoundTag());
     }
 
