@@ -11,7 +11,7 @@ import net.minecraft.world.entity.AgeableMob;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
-import net.minecraft.world.entity.MobSpawnType;
+import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.control.FlyingMoveControl;
@@ -87,7 +87,7 @@ public class HummingbirdEntity extends Animal implements FlyingAnimal {
         goalSelector.addGoal(5, new FlyAroundRandomlyGoal());
     }
 
-    public static boolean canHummingbirdSpawnOn(EntityType<HummingbirdEntity> type, LevelAccessor world, MobSpawnType reason, BlockPos pos, RandomSource random) {
+    public static boolean canHummingbirdSpawnOn(EntityType<HummingbirdEntity> type, LevelAccessor world, EntitySpawnReason reason, BlockPos pos, RandomSource random) {
         BlockState groundState = world.getBlockState(pos.below());
         return (groundState.is(BlockTags.LEAVES) || groundState.is(Blocks.GRASS_BLOCK) || groundState.isAir())
                 && world.getRawBrightness(pos, 0) > 8;

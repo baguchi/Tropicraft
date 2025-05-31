@@ -227,7 +227,7 @@ public final class FiddlerCrabEntity extends Animal implements OwnableEntity {
         return super.maxUpStep();
     }
 
-    public static boolean canCrabSpawn(EntityType<? extends FiddlerCrabEntity> type, ServerLevelAccessor world, MobSpawnType reason, BlockPos pos, RandomSource random) {
+    public static boolean canCrabSpawn(EntityType<? extends FiddlerCrabEntity> type, ServerLevelAccessor world, EntitySpawnReason reason, BlockPos pos, RandomSource random) {
         BlockPos groundPos = pos.below();
         BlockState groundBlock = world.getBlockState(groundPos);
         if (!groundBlock.is(BlockTags.SAND)) {

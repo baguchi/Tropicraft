@@ -7,7 +7,7 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.AgeableMob;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Mob;
-import net.minecraft.world.entity.MobSpawnType;
+import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.FloatGoal;
@@ -71,7 +71,7 @@ public class SmallBirdEntity extends Animal implements FlyingAnimal {
 		goalSelector.addGoal(3, new BirdWanderInTreesGoal(this, 1.0));
 	}
 
-	public static boolean canSmallBirdSpawnOn(EntityType<SmallBirdEntity> type, LevelAccessor world, MobSpawnType reason, BlockPos pos, RandomSource random) {
+	public static boolean canSmallBirdSpawnOn(EntityType<SmallBirdEntity> type, LevelAccessor world, EntitySpawnReason reason, BlockPos pos, RandomSource random) {
 		BlockState groundState = world.getBlockState(pos.below());
 		return (groundState.is(TropicraftTags.Blocks.BIRDS_LIKE_TO_STAND_ON) || groundState.is(Blocks.GRASS_BLOCK) || groundState.isAir())
 				&& world.getRawBrightness(pos, 0) > 8;

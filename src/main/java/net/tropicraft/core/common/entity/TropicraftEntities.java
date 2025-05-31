@@ -646,19 +646,19 @@ public class TropicraftEntities {
             .renderer(() -> ShoebillStorkRenderer::new)
             .register();
 
-    public static boolean canAnimalSpawn(EntityType<? extends Mob> animal, LevelAccessor worldIn, MobSpawnType reason, BlockPos pos, RandomSource random) {
+    public static boolean canAnimalSpawn(EntityType<? extends Mob> animal, LevelAccessor worldIn, EntitySpawnReason reason, BlockPos pos, RandomSource random) {
         BlockState groundState = worldIn.getBlockState(pos.below());
         return groundState.is(Blocks.GRASS_BLOCK)
                 || groundState.is(BlockTags.SAND)
                 || groundState.is(TropicraftTags.Blocks.MUD);
     }
 
-    public static <T extends Mob> boolean canSpawnOceanWaterMob(EntityType<T> waterMob, LevelAccessor world, MobSpawnType reason, BlockPos pos, RandomSource rand) {
+    public static <T extends Mob> boolean canSpawnOceanWaterMob(EntityType<T> waterMob, LevelAccessor world, EntitySpawnReason reason, BlockPos pos, RandomSource rand) {
         int seaLevel = TropicraftDimension.getSeaLevel(world);
         return pos.getY() > 90 && pos.getY() < seaLevel && world.getFluidState(pos).is(FluidTags.WATER);
     }
 
-    public static <T extends Mob> boolean canSpawnSurfaceOceanWaterMob(EntityType<T> waterMob, LevelAccessor world, MobSpawnType reason, BlockPos pos, RandomSource rand) {
+    public static <T extends Mob> boolean canSpawnSurfaceOceanWaterMob(EntityType<T> waterMob, LevelAccessor world, EntitySpawnReason reason, BlockPos pos, RandomSource rand) {
         int seaLevel = TropicraftDimension.getSeaLevel(world);
         return pos.getY() > seaLevel - 3 && pos.getY() < seaLevel && world.getFluidState(pos).is(FluidTags.WATER);
     }
@@ -706,7 +706,7 @@ public class TropicraftEntities {
         ServerLevel level = event.getLevel().getLevel();
         if (level.dimension() == TropicraftDimension.WORLD) {
             if (!TropicsConfigs.COMMON.spawnHostileMobsInTropics.get()) {
-                if (event.getSpawnType() == MobSpawnType.NATURAL || event.getSpawnType() == MobSpawnType.CHUNK_GENERATION) {
+                if (event.getSpawnType() == EntitySpawnReason.NATURAL || event.getSpawnType() == EntitySpawnReason.CHUNK_GENERATION) {
                     Mob mob = event.getEntity();
                     if (mob.getType() != TropicraftEntities.ASHEN.get() && (mob.getType().getCategory() == MobCategory.MONSTER || mob instanceof Enemy)) {
                         event.setResult(MobSpawnEvent.PositionCheck.Result.FAIL);
