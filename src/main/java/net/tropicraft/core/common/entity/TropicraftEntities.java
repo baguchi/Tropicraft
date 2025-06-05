@@ -216,7 +216,7 @@ public class TropicraftEntities {
             .spawnPlacement(SpawnPlacementTypes.IN_WATER, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, TropicraftEntities::canSpawnOceanWaterMob, RegisterSpawnPlacementsEvent.Operation.REPLACE)
             .attributes(TropicraftDolphinEntity::createAttributes)
             .loot((lootTables, entity) -> dropItemsWithEnchantBonus(lootTables, entity, (RegistryEntry<Item, TropicalFertilizerItem>) TropicraftItems.TROPICAL_FERTILIZER, UniformGenerator.between(1, 3)))
-            .renderer(() -> DolphinRenderer::new)
+            .renderer(() -> TropicraftDolphinRenderer::new)
             .register();
     public static final EntityEntry<SeahorseEntity> SEAHORSE = REGISTRATE.entity("seahorse", SeahorseEntity::new, MobCategory.WATER_AMBIENT)
             .properties(b -> b.sized(0.5f, 0.6f)

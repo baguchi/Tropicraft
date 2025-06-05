@@ -5,7 +5,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.tropicraft.Tropicraft;
 import net.tropicraft.core.client.TropicraftRenderLayers;
 import net.tropicraft.core.client.entity.model.PapyrusGonolekModel;
-import net.tropicraft.core.client.entity.render.state.SmallBirdRenderState;
+import net.tropicraft.core.client.entity.render.state.BirdRenderState;
 
 public class PapyrusGonolekRenderer extends SmallBirdRenderer<PapyrusGonolekModel> {
     private static final ResourceLocation TEXTURE = Tropicraft.location("textures/entity/papyrus_gonolek.png");
@@ -15,7 +15,7 @@ public class PapyrusGonolekRenderer extends SmallBirdRenderer<PapyrusGonolekMode
     }
 
     @Override
-    public ResourceLocation getTextureLocation(SmallBirdRenderState state) {
+    public ResourceLocation getTextureLocation(BirdRenderState state) {
         return TEXTURE;
     }
 }

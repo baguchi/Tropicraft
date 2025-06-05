@@ -9,9 +9,9 @@ import net.minecraft.client.model.geom.builders.LayerDefinition;
 import net.minecraft.client.model.geom.builders.MeshDefinition;
 import net.minecraft.client.model.geom.builders.PartDefinition;
 import net.minecraft.util.Mth;
-import net.tropicraft.core.client.entity.render.state.SmallBirdRenderState;
+import net.tropicraft.core.client.entity.render.state.BirdRenderState;
 
-public class PapyrusGonolekModel extends EntityModel<SmallBirdRenderState> {
+public class PapyrusGonolekModel extends EntityModel<BirdRenderState> {
     private final ModelPart body;
     private final ModelPart head;
     private final ModelPart beak;
@@ -60,7 +60,7 @@ public class PapyrusGonolekModel extends EntityModel<SmallBirdRenderState> {
     }
 
     @Override
-    public void setupAnim(SmallBirdRenderState state) {
+    public void setupAnim(BirdRenderState state) {
         super.setupAnim(state);
 
         head.xRot += state.xRot * ModelAnimator.DEG_TO_RAD;

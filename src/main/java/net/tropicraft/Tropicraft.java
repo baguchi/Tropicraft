@@ -20,11 +20,6 @@ import net.minecraft.server.packs.PackType;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.biome.Biome;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.StateDefinition;
-import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -43,6 +38,7 @@ import net.neoforged.neoforge.event.RegisterCommandsEvent;
 import net.neoforged.neoforgespi.locating.IModFile;
 import net.tropicraft.core.client.EmbeddedPackSource;
 import net.tropicraft.core.client.data.TropicraftLangKeys;
+import net.tropicraft.core.client.entity.render.BambooItemFrameRenderer;
 import net.tropicraft.core.common.TropicraftPackRegistries;
 import net.tropicraft.core.common.TropicsConfigs;
 import net.tropicraft.core.common.block.TropicraftBlocks;
@@ -192,10 +188,9 @@ public class Tropicraft {
         @SubscribeEvent
         public static void registerReloadListeners(AddClientReloadListenersEvent event) {
             // Hack in our item frame models the way vanilla does
-            StateDefinition<Block, BlockState> frameState = new StateDefinition.Builder<Block, BlockState>(Blocks.AIR).add(BooleanProperty.create("map")).create(Block::defaultBlockState, BlockState::new);
             BlockStateDefinitions.STATIC_DEFINITIONS = Util.copyAndPut(
                     BlockStateDefinitions.STATIC_DEFINITIONS,
-                    TropicraftItems.BAMBOO_ITEM_FRAME.getId(), frameState
+                    TropicraftItems.BAMBOO_ITEM_FRAME.getId(), BambooItemFrameRenderer.FAKE_BLOCK_STATE
             );
         }
     }

@@ -1,6 +1,6 @@
 package net.tropicraft.core.client.entity.model;
 
-import net.minecraft.client.model.HierarchicalModel;
+import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.PartPose;
 import net.minecraft.client.model.geom.builders.CubeDeformation;
@@ -9,12 +9,13 @@ import net.minecraft.client.model.geom.builders.LayerDefinition;
 import net.minecraft.client.model.geom.builders.MeshDefinition;
 import net.minecraft.client.model.geom.builders.PartDefinition;
 import net.minecraft.util.Mth;
+import net.tropicraft.core.client.entity.render.state.ShoebillStorkRenderState;
 import net.tropicraft.core.common.entity.IkWalker;
 import net.tropicraft.core.common.entity.passive.ShoebillStorkEntity;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
-public class ShoebillStorkModel extends HierarchicalModel<ShoebillStorkEntity> {
+public class ShoebillStorkModel extends EntityModel<ShoebillStorkRenderState> {
     private final ModelPart body;
     private final ModelPart wingLeft1a;
     private final ModelPart wingLeft1b;
@@ -49,6 +50,7 @@ public class ShoebillStorkModel extends HierarchicalModel<ShoebillStorkEntity> {
     private final TwoJointSolver headSolver;
 
     public ShoebillStorkModel(ModelPart root) {
+        super(root);
         body = root.getChild("body_main");
         wingLeft1a = body.getChild("wing_left1a");
         wingLeft1b = wingLeft1a.getChild("wing_left1b");
@@ -137,20 +139,14 @@ public class ShoebillStorkModel extends HierarchicalModel<ShoebillStorkEntity> {
     }
 
     @Override
-    public ModelPart root() {
-        return body;
-    }
+    public void setupAnim(ShoebillStorkRenderState state) {
+        super.setupAnim(state);
 
-    @Override
-    public void setupAnim(ShoebillStorkEntity entity, float limbSwing, float limbSwingAmount, float ageInTicks, float headYaw, float headPitch) {
-        body.getAllParts().forEach(ModelPart::resetPose);
-
-        float partialTicks = ageInTicks - entity.tickCount;
-        float flightAnimation = entity.getFlightAnimation(partialTicks);
-        float groundAnimation = 1.0f - flightAnimation;
+        float groundAnimation = 1.0f - state.flightAnimation;
 
         float headRoll = 0.0f;
 
+        float ageInTicks = state.ageInTicks;
         if (groundAnimation > 0.0f) {
             try (ModelAnimator.Cycle idle = ModelAnimator.cycle(ageInTicks, 1.0f)) {
                 headRoll += idle.periodic(400.0f, 5.0f, 20.0f, 20.0f);
@@ -163,17 +159,13 @@ public class ShoebillStorkModel extends HierarchicalModel<ShoebillStorkEntity> {
                 wingRight1a.yRot -= wingTwitch;
             }
 
-            IkWalker.EntitySpace entitySpace = IkWalker.EntitySpace.from(entity, partialTicks);
-            Vector3f leftFootPos = entity.leftFoot().solveModelPosition(entitySpace, partialTicks);
-            Vector3f rightFootPos = entity.rightFoot().solveModelPosition(entitySpace, partialTicks);
-
-            float footDeltaX = (leftFootPos.x + rightFootPos.x) / 2.0f;
-            float footDeltaZ = (leftFootPos.z + rightFootPos.z) / 2.0f - ShoebillStorkEntity.BASE_FOOT_Z;
+            float footDeltaX = (state.leftFootPos.x + state.rightFootPos.x) / 2.0f;
+            float footDeltaZ = (state.leftFootPos.z + state.rightFootPos.z) / 2.0f - ShoebillStorkEntity.BASE_FOOT_Z;
             body.xRot += footDeltaZ * 0.6f * groundAnimation;
             body.zRot += footDeltaX * 0.6f * groundAnimation;
 
-            leftLegSolver.apply(leftFootPos, groundAnimation);
-            rightLegSolver.apply(rightFootPos, groundAnimation);
+            leftLegSolver.apply(state.leftFootPos, groundAnimation);
+            rightLegSolver.apply(state.rightFootPos, groundAnimation);
         }
 
         // Try to keep the head stable in the same position - very Shoebill-like
@@ -181,13 +173,13 @@ public class ShoebillStorkModel extends HierarchicalModel<ShoebillStorkEntity> {
 
         Quaternionf neckRotation = new Quaternionf().rotationZYX(
                 0.0f,
-                headYaw * Mth.DEG_TO_RAD * 0.75f,
-                headPitch * Mth.DEG_TO_RAD * 0.75f
+                state.yRot * Mth.DEG_TO_RAD * 0.75f,
+                state.xRot * Mth.DEG_TO_RAD * 0.75f
         );
         Quaternionf headRotation = new Quaternionf().rotationZYX(
                 headRoll * Mth.DEG_TO_RAD,
-                headYaw * Mth.DEG_TO_RAD * 0.25f,
-                headPitch * Mth.DEG_TO_RAD * 0.25f
+                state.yRot * Mth.DEG_TO_RAD * 0.25f,
+                state.xRot * Mth.DEG_TO_RAD * 0.25f
         );
         ModelAnimator.rotateByInModelSpace(new ModelPart[]{body}, neckBase, neckRotation);
         ModelAnimator.rotateByInModelSpace(neckChain, head, headRotation);

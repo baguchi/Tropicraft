@@ -4,13 +4,14 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.DifficultyInstance;
+import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.PathfinderMob;
 import net.minecraft.world.entity.SpawnGroupData;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
@@ -59,7 +60,7 @@ public class TreeFrogEntity extends PathfinderMob implements Enemy, RangedAttack
     private int attackTime;
 
     public TreeFrogEntity(EntityType<? extends PathfinderMob> type, Level world) {
-        super((EntityType<? extends TreeFrogEntity>) type, world);
+        super(type, world);
         //TODO 1.17 fix - pushthrough = 0.8f;
         xpReward = 5;
     }
@@ -83,8 +84,8 @@ public class TreeFrogEntity extends PathfinderMob implements Enemy, RangedAttack
     }
 
     @Override
-    protected void customServerAiStep() {
-        super.customServerAiStep();
+    protected void customServerAiStep(ServerLevel level) {
+        super.customServerAiStep(level);
         if (!getNavigation().isDone() || getTarget() != null) {
             if (onGround() || isInWater()) {
                 if (jumpDelay > 0)
@@ -95,9 +96,7 @@ public class TreeFrogEntity extends PathfinderMob implements Enemy, RangedAttack
                     // this.jump();
                     // this.motionY += -0.01 + rand.nextDouble() * 0.1;
                     Vec3 motion = getDeltaMovement();
-
-                    double speed = Math.sqrt(motion.x * motion.x + motion.z * motion.z);
-                    if (speed > 0.02) {
+                    if (motion.horizontalDistanceSqr() > 0.02 * 0.02) {
                         double motionY = motion.y + 0.4d;
                         double motionX = motion.x * 1.1d;
                         double motionZ = motion.z * 1.1d;
@@ -120,13 +119,13 @@ public class TreeFrogEntity extends PathfinderMob implements Enemy, RangedAttack
     @Override
     public void addAdditionalSaveData(CompoundTag nbt) {
         super.addAdditionalSaveData(nbt);
-        nbt.putInt("Type", getFrogType());
+        nbt.putInt("Type", getFrogType().ordinal());
     }
 
     @Override
     public void readAdditionalSaveData(CompoundTag nbt) {
         super.readAdditionalSaveData(nbt);
-        setFrogType(nbt.getInt("Type"));
+        setFrogType(nbt.getIntOr("Type", Type.GREEN.ordinal()));
     }
 
     @Nullable
@@ -147,12 +146,8 @@ public class TreeFrogEntity extends PathfinderMob implements Enemy, RangedAttack
         entityData.set(TYPE, i);
     }
 
-    public int getFrogType() {
-        return entityData.get(TYPE);
-    }
-
-    public String getColor() {
-        return Type.values()[getFrogType()].getColor();
+    public Type getFrogType() {
+        return Type.values()[entityData.get(TYPE)];
     }
 
     @Override

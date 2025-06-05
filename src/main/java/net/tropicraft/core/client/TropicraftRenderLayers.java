@@ -59,6 +59,7 @@ import java.util.function.Supplier;
 @EventBusSubscriber(modid = Tropicraft.ID, bus = EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
 public class TropicraftRenderLayers {
     public static ModelLayerLocation KOA_HUNTER_LAYER;
+    public static ModelLayerLocation KOA_HUNTER_BABY_LAYER;
     public static ModelLayerLocation TROPI_CREEPER_LAYER;
     public static ModelLayerLocation IGUANA_LAYER;
     public static ModelLayerLocation UMBRELLA_LAYER;
@@ -111,6 +112,7 @@ public class TropicraftRenderLayers {
     public static ModelLayerLocation GIBNUT_BABY_LAYER;
     public static ModelLayerLocation MANATEE_LAYER;
     public static ModelLayerLocation SLENDER_HARVEST_MOUSE_LAYER;
+    public static ModelLayerLocation SLENDER_HARVEST_MOUSE_BABY_LAYER;
     public static ModelLayerLocation TOUCAN_LAYER;
     public static ModelLayerLocation PAPYRUS_CANARY_LAYER;
     public static ModelLayerLocation PAPYRUS_GONOLEK_LAYER;
@@ -127,6 +129,7 @@ public class TropicraftRenderLayers {
     @SubscribeEvent
     public static void registerLayers(EntityRenderersEvent.RegisterLayerDefinitions event) {
         KOA_HUNTER_LAYER = registerMain("koa_hunter", KoaModel::create, event);
+        KOA_HUNTER_BABY_LAYER = registerMain("koa_hunter_baby", KoaModel::createBaby, event);
         TROPI_CREEPER_LAYER = registerMain("tropi_creeper", TropiCreeperModel::create, event);
         IGUANA_LAYER = registerMain("iguana", IguanaModel::create, event);
         UMBRELLA_LAYER = registerMain("umbrella", UmbrellaModel::create, event);
@@ -180,6 +183,7 @@ public class TropicraftRenderLayers {
         GIBNUT_BABY_LAYER = registerMain("gibnut_baby", GibnutModel::createBaby, event);
         MANATEE_LAYER = registerMain("manatee", ManateeModel::create, event);
         SLENDER_HARVEST_MOUSE_LAYER = registerMain("slender_harvest_mouse", SlenderHarvestMouseModel::create, event);
+        SLENDER_HARVEST_MOUSE_BABY_LAYER = registerMain("slender_harvest_mouse_baby", SlenderHarvestMouseModel::createBaby, event);
         TOUCAN_LAYER = registerMain("toucan", ToucanModel::create, event);
         PAPYRUS_CANARY_LAYER = registerMain("papyrus_canary", PapyrusCanaryModel::createBodyLayer, event);
         PAPYRUS_GONOLEK_LAYER = registerMain("papyrus_gonolek", PapyrusGonolekModel::createBodyLayer, event);

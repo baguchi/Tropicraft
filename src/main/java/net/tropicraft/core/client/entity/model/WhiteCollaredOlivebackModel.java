@@ -9,9 +9,9 @@ import net.minecraft.client.model.geom.builders.LayerDefinition;
 import net.minecraft.client.model.geom.builders.MeshDefinition;
 import net.minecraft.client.model.geom.builders.PartDefinition;
 import net.minecraft.util.Mth;
-import net.tropicraft.core.client.entity.render.state.SmallBirdRenderState;
+import net.tropicraft.core.client.entity.render.state.BirdRenderState;
 
-public class WhiteCollaredOlivebackModel extends EntityModel<SmallBirdRenderState> {
+public class WhiteCollaredOlivebackModel extends EntityModel<BirdRenderState> {
     private final ModelPart body;
     private final ModelPart butt;
     private final ModelPart tail1;
@@ -59,7 +59,7 @@ public class WhiteCollaredOlivebackModel extends EntityModel<SmallBirdRenderStat
     }
 
     @Override
-    public void setupAnim(SmallBirdRenderState state) {
+    public void setupAnim(BirdRenderState state) {
         body.getAllParts().forEach(ModelPart::resetPose);
 
         head.xRot += state.xRot * ModelAnimator.DEG_TO_RAD;

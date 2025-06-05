@@ -1,5 +1,6 @@
 package net.tropicraft.core.client.entity.model;
 
+import com.mojang.math.Transformation;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.PartPose;
@@ -9,6 +10,7 @@ import net.minecraft.client.model.geom.builders.PartDefinition;
 import net.minecraft.client.renderer.entity.state.LivingEntityRenderState;
 import net.minecraft.util.Mth;
 import org.joml.Matrix3f;
+import org.joml.Matrix4f;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
@@ -30,13 +32,17 @@ public final class ModelAnimator {
     }
 
     public static MeshTransformer hierarchicalBaby(String headName, float scale) {
+        return hierarchicalBaby(headName, scale, 1.0f);
+    }
+
+    public static MeshTransformer hierarchicalBaby(String headName, float scale, float headScale) {
         MeshTransformer bodyScaling = MeshTransformer.scaling(scale);
         return mesh -> bodyScaling.apply(
-                transformChildPart(mesh, headName, pose -> pose.scaled(scale))
+                transformChildPart(mesh, headName, pose -> pose.scaled(headScale / scale))
         );
     }
 
-    private static MeshDefinition transformChildPart(MeshDefinition mesh, String targetName, UnaryOperator<PartPose> targetTransformer) {
+    public static MeshDefinition transformChildPart(MeshDefinition mesh, String targetName, UnaryOperator<PartPose> targetTransformer) {
         MeshDefinition result = new MeshDefinition();
         for (Map.Entry<String, PartDefinition> entry : mesh.getRoot().getChildren()) {
             result.getRoot().addOrReplaceChild(entry.getKey(), transformChildPart(entry.getValue(), targetName, targetTransformer));
@@ -75,14 +81,7 @@ public final class ModelAnimator {
     }
 
     public static void rotateAround(ModelPart part, Vector3f axis, float angle) {
-        rotateBy(part, new Quaternionf().setAngleAxis(angle, axis.x, axis.y, axis.z));
-    }
-
-    public static void rotateBy(ModelPart part, Quaternionf quaternion) {
-        Matrix3f newRotation = new Matrix3f()
-                .rotationZYX(part.zRot, part.yRot, part.xRot)
-                .rotate(quaternion);
-        setRotationFromMatrix(part, newRotation);
+        part.rotateBy(new Quaternionf().setAngleAxis(angle, axis.x, axis.y, axis.z));
     }
 
     public static void setRotation(ModelPart part, Quaternionf quaternion) {
@@ -105,6 +104,17 @@ public final class ModelAnimator {
         Quaternionf absoluteRotation = parentRotation.rotateZYX(part.zRot, part.yRot, part.xRot, new Quaternionf());
         Quaternionf newAbsoluteRotation = quaternion.mul(absoluteRotation, new Quaternionf());
         setRotation(part, newAbsoluteRotation.premul(parentRotation.conjugate()));
+    }
+
+    public static PartPose toPose(Matrix4f matrix) {
+        Transformation transformation = new Transformation(matrix);
+        Vector3f translation = transformation.getTranslation();
+        Vector3f rotation = new Matrix3f()
+                .rotation(transformation.getLeftRotation())
+                .rotate(transformation.getRightRotation())
+                .getEulerAnglesZYX(new Vector3f());
+        Vector3f scale = transformation.getScale();
+        return new PartPose(translation.x, translation.y, translation.z, rotation.x, rotation.y, rotation.z, scale.x, scale.y, scale.z);
     }
 
     public static final class Cycle implements AutoCloseable {

@@ -64,7 +64,7 @@ public class TropicraftDolphinEntity extends Dolphin {
     @Override
     public void readAdditionalSaveData(CompoundTag nbt) {
         super.readAdditionalSaveData(nbt);
-        setTexture(nbt.getString("Texture"));
+        setTexture(nbt.getStringOr("Texture", "dolphin"));
     }
 
     @Override

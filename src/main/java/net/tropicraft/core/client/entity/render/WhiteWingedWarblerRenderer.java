@@ -5,7 +5,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.tropicraft.Tropicraft;
 import net.tropicraft.core.client.TropicraftRenderLayers;
 import net.tropicraft.core.client.entity.model.WhiteWingedWarblerModel;
-import net.tropicraft.core.client.entity.render.state.SmallBirdRenderState;
+import net.tropicraft.core.client.entity.render.state.BirdRenderState;
 
 public class WhiteWingedWarblerRenderer extends SmallBirdRenderer<WhiteWingedWarblerModel> {
     private static final ResourceLocation TEXTURE = Tropicraft.location("textures/entity/white_winged_warbler.png");
@@ -15,7 +15,7 @@ public class WhiteWingedWarblerRenderer extends SmallBirdRenderer<WhiteWingedWar
     }
 
     @Override
-    public ResourceLocation getTextureLocation(SmallBirdRenderState entity) {
+    public ResourceLocation getTextureLocation(BirdRenderState entity) {
         return TEXTURE;
     }
 }
