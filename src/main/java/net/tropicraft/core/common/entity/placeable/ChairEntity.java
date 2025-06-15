@@ -29,7 +29,7 @@ import java.util.List;
 public class ChairEntity extends FurnitureEntity {
     // TODO add drips after being wet
     // TODO make it so monkies can sit in the chair ouo
-    private static final EntityDataAccessor<Byte> COMESAILAWAY = SynchedEntityData.defineId(ChairEntity.class, EntityDataSerializers.BYTE);
+    private static final EntityDataAccessor<Boolean> COMESAILAWAY = SynchedEntityData.defineId(ChairEntity.class, EntityDataSerializers.BOOLEAN);
 
     /**
      * Is any entity sitting in the chair?
@@ -213,13 +213,13 @@ public class ChairEntity extends FurnitureEntity {
     @Override
     protected void defineSynchedData(SynchedEntityData.Builder builder) {
         super.defineSynchedData(builder);
-        builder.define(COMESAILAWAY, (byte) 0);
+        builder.define(COMESAILAWAY, false);
     }
 
     @Override
     protected void readAdditionalSaveData(CompoundTag nbt) {
         super.readAdditionalSaveData(nbt);
-        setComeSailAway(nbt.getBoolean("COME_SAIL_AWAY"));
+        setComeSailAway(nbt.getBooleanOr("COME_SAIL_AWAY", false));
     }
 
     @Override
@@ -259,20 +259,15 @@ public class ChairEntity extends FurnitureEntity {
     }
 
     public void setComeSailAway(boolean sail) {
-        entityData.set(COMESAILAWAY, sail ? Byte.valueOf((byte) 1) : Byte.valueOf((byte) 0));
+        entityData.set(COMESAILAWAY, sail);
     }
 
     public boolean getComeSailAway() {
-        return entityData.get(COMESAILAWAY) == (byte) 1;
+        return entityData.get(COMESAILAWAY);
     }
 
     @Override
-    public ItemStack getPickedResult(HitResult target) {
-        return new ItemStack(TropicraftItems.CHAIRS.get(DyeColor.byId(getColor().getId())).get());
-    }
-
-    @Override
-    public AABB getBoundingBoxForCulling() {
-        return getBoundingBox().expandTowards(0.0, 1.0, 0.0);
+    public ItemStack getPickResult() {
+        return new ItemStack(TropicraftItems.CHAIRS.get(getColor()).get());
     }
 }

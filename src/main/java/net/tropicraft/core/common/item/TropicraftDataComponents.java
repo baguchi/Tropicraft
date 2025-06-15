@@ -2,6 +2,7 @@ package net.tropicraft.core.common.item;
 
 import com.mojang.serialization.Codec;
 import net.minecraft.core.component.DataComponentType;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.util.ExtraCodecs;
 import net.neoforged.neoforge.registries.DeferredHolder;
@@ -11,7 +12,7 @@ import net.tropicraft.core.common.drinks.Cocktail;
 import net.tropicraft.core.common.entity.projectile.ExplodingCoconutEntity;
 
 public class TropicraftDataComponents {
-    public static final DeferredRegister.DataComponents REGISTER = DeferredRegister.createDataComponents(Tropicraft.ID);
+    public static final DeferredRegister.DataComponents REGISTER = DeferredRegister.createDataComponents(Registries.DATA_COMPONENT_TYPE, Tropicraft.ID);
 
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<Integer>> SCUBA_AIR = REGISTER.registerComponentType(
             "scuba_air",

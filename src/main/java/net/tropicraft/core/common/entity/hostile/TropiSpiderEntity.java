@@ -5,8 +5,11 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.entity.EntityReference;
+import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.goal.FloatGoal;
@@ -78,11 +81,11 @@ public class TropiSpiderEntity extends Spider {
     }
 
     @Override
-    protected void actuallyHurt(DamageSource damageSrc, float damageAmount) {
-        if (damageSrc.getEntity() != null && damageSrc.getEntity() instanceof LivingEntity) {
-            setTarget((LivingEntity) damageSrc.getEntity());
+    protected void actuallyHurt(ServerLevel level, DamageSource source, float amount) {
+        if (source.getEntity() instanceof LivingEntity cause) {
+            setTarget(cause);
         }
-        super.actuallyHurt(damageSrc, damageAmount);
+        super.actuallyHurt(level, source, amount);
     }
 
     @Override
@@ -201,8 +204,8 @@ public class TropiSpiderEntity extends Spider {
             }
 
             for (int i = 0; i < r; i++) {
-                TropiSpiderEggEntity egg = TropicraftEntities.TROPI_SPIDER_EGG.get().create(level());
-                egg.setMotherId(getUUID());
+                TropiSpiderEggEntity egg = TropicraftEntities.TROPI_SPIDER_EGG.get().create(level(), EntitySpawnReason.BREEDING);
+                egg.setMother(this);
                 egg.setPos(blockPosition().getX() + random.nextFloat(), blockPosition().getY(), blockPosition().getZ() + random.nextFloat());
                 level().addFreshEntity(egg);
                 ticksSinceLastEgg = 0;
@@ -233,9 +236,9 @@ public class TropiSpiderEntity extends Spider {
 
     @Override
     public void readAdditionalSaveData(CompoundTag n) {
-        tickCount = n.getInt("ticks");
-        setSpiderType(n.getByte("spiderType"));
-        ticksSinceLastEgg = n.getLong("timeSinceLastEgg");
+        tickCount = n.getIntOr("ticks", 0);
+        setSpiderType(n.getByteOr("spiderType", (byte) 0));
+        ticksSinceLastEgg = n.getLongOr("timeSinceLastEgg", 0);
         super.readAdditionalSaveData(n);
     }
 

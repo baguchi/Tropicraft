@@ -6,7 +6,6 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.phys.HitResult;
 import net.neoforged.neoforge.entity.IEntityWithComplexSpawn;
 import net.tropicraft.core.common.entity.TropicraftEntities;
 import net.tropicraft.core.common.entity.underdasea.StarfishEntity;
@@ -65,7 +64,7 @@ public class StarfishEggEntity extends EchinodermEggEntity implements IEntityWit
     }
 
     @Override
-    public ItemStack getPickedResult(HitResult target) {
+    public ItemStack getPickResult() {
         return new ItemStack(TropicraftItems.STARFISH.get());
     }
 }

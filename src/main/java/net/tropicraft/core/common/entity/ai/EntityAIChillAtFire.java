@@ -40,7 +40,7 @@ public class EntityAIChillAtFire extends Goal {
 
         BlockPos blockpos = entityObj.blockPosition();
 
-        if (!entityObj.level().isDay() || entityObj.level().isRaining() && entityObj.level().getBiome(blockpos).value().getPrecipitationAt(blockpos) != Biome.Precipitation.RAIN) {
+        if (!entityObj.level().isBrightOutside() || entityObj.level().isRaining() && entityObj.level().getBiome(blockpos).value().getPrecipitationAt(blockpos, entityObj.level().getSeaLevel()) != Biome.Precipitation.RAIN) {
             if (!isTooClose()) {
                 return entityObj.level().random.nextInt(20) == 0;
             } else {
@@ -60,7 +60,7 @@ public class EntityAIChillAtFire extends Goal {
 
         BlockPos blockpos = entityObj.blockPosition();
         //return !this.entityObj.getNavigation().noPath();
-        if (!entityObj.level().isDay() || entityObj.level().isRaining() && entityObj.level().getBiome(blockpos).value().getPrecipitationAt(blockpos) != Biome.Precipitation.RAIN) {
+        if (!entityObj.level().isBrightOutside() || entityObj.level().isRaining() && entityObj.level().getBiome(blockpos).value().getPrecipitationAt(blockpos, entityObj.level().getSeaLevel()) != Biome.Precipitation.RAIN) {
             return !isTooClose();
         } else {
             return entityObj.level().random.nextInt(60) != 0;

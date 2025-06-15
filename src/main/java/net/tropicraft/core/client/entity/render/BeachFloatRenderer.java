@@ -3,6 +3,7 @@ package net.tropicraft.core.client.entity.render;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
+import net.minecraft.world.phys.AABB;
 import net.tropicraft.core.client.TropicraftRenderLayers;
 import net.tropicraft.core.client.entity.model.BeachFloatModel;
 import net.tropicraft.core.client.entity.render.state.FurnitureRenderState;
@@ -38,5 +39,10 @@ public class BeachFloatRenderer extends FurnitureRenderer<BeachFloatEntity, Furn
     @Override
     protected float getRockAmount() {
         return 25;
+    }
+
+    @Override
+    protected AABB getBoundingBoxForCulling(BeachFloatEntity entity) {
+        return super.getBoundingBoxForCulling(entity).inflate(0.1, 0.1, 0.1);
     }
 }

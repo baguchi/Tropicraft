@@ -11,6 +11,7 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.AgeableMob;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityReference;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
@@ -39,9 +40,9 @@ import java.util.Optional;
 import java.util.UUID;
 
 public class FailgullEntity extends Animal implements FlyingAnimal {
-
     private boolean isFlockLeader;
-    private static final EntityDataAccessor<Optional<UUID>> FLOCK_LEADER_UUID = SynchedEntityData.defineId(FailgullEntity.class, EntityDataSerializers.OPTIONAL_UUID);
+    @Nullable
+    private EntityReference<FailgullEntity> flockLeader;
 
     public FailgullEntity(EntityType<? extends FailgullEntity> type, Level world) {
         super(type, world);
@@ -61,20 +62,10 @@ public class FailgullEntity extends Animal implements FlyingAnimal {
     }
 
     @Override
-    protected void defineSynchedData(SynchedEntityData.Builder builder) {
-        super.defineSynchedData(builder);
-        builder.define(FLOCK_LEADER_UUID, Optional.empty());
-    }
-
-    @Override
     public void readAdditionalSaveData(CompoundTag nbt) {
         super.readAdditionalSaveData(nbt);
-        isFlockLeader = nbt.getBoolean("IsFlockLeader");
-        if (nbt.contains("FlockLeader")) {
-            setFlockLeader(Optional.of(nbt.getUUID("FlockLeader")));
-        } else {
-            setFlockLeader(Optional.empty());
-        }
+        isFlockLeader = nbt.getBooleanOr("IsFlockLeader", false);
+        flockLeader = EntityReference.read(nbt, "FlockLeader");
     }
 
     @Override
@@ -86,7 +77,9 @@ public class FailgullEntity extends Animal implements FlyingAnimal {
     public void addAdditionalSaveData(CompoundTag nbt) {
         super.addAdditionalSaveData(nbt);
         nbt.putBoolean("IsFlockLeader", isFlockLeader);
-        entityData.get(FLOCK_LEADER_UUID).ifPresent(uuid -> nbt.putUUID("FlockLeader", uuid));
+        if (flockLeader != null) {
+            flockLeader.store(nbt, "FlockLeader");
+        }
     }
 
     @Override
@@ -116,16 +109,7 @@ public class FailgullEntity extends Animal implements FlyingAnimal {
         };
         flyingpathnavigator.setCanOpenDoors(false);
         flyingpathnavigator.setCanFloat(false);
-        flyingpathnavigator.setCanPassDoors(true);
         return flyingpathnavigator;
-    }
-
-    private void poop() {
-        if (!level().isClientSide && level().random.nextInt(20) == 0) {
-            Snowball s = new Snowball(level(), getX(), getY(), getZ());
-            s.shoot(0, 0, 0, 0, 0);
-            level().addFreshEntity(s);
-        }
     }
 
     @Override
@@ -153,25 +137,17 @@ public class FailgullEntity extends Animal implements FlyingAnimal {
         this.isFlockLeader = isFlockLeader;
     }
 
-    private void setFlockLeader(Optional<UUID> flockLeaderUUID) {
-        entityData.set(FLOCK_LEADER_UUID, flockLeaderUUID);
-    }
-
     private boolean getIsFlockLeader() {
         return isFlockLeader;
     }
 
     private boolean hasFlockLeader() {
-        return entityData.get(FLOCK_LEADER_UUID).isPresent();
+        return flockLeader != null;
     }
 
     @Nullable
     private Entity getFlockLeader() {
-        if (level() instanceof ServerLevel && hasFlockLeader()) {
-            return ((ServerLevel) level()).getEntity(entityData.get(FLOCK_LEADER_UUID).get());
-        }
-
-        return null;
+        return EntityReference.get(flockLeader, level(), FailgullEntity.class);
     }
 
     @Nullable
@@ -283,7 +259,7 @@ public class FailgullEntity extends Animal implements FlyingAnimal {
 
         @Override
         public void start() {
-            mob.setFlockLeader(Optional.empty());
+            mob.flockLeader = null;
         }
     }
 
@@ -309,9 +285,9 @@ public class FailgullEntity extends Animal implements FlyingAnimal {
             if (oldest.isPresent() && !oldest.get().uuid.equals(mob.getUUID())) {
                 FailgullEntity oldestFailgull = oldest.get();
                 oldestFailgull.setIsFlockLeader(true);
-                oldestFailgull.setFlockLeader(Optional.empty());
+                oldestFailgull.flockLeader = null;
                 mob.setIsFlockLeader(false);
-                mob.setFlockLeader(Optional.of(oldestFailgull.getUUID()));
+                mob.flockLeader = new EntityReference<>(oldestFailgull);
             }
         }
     }

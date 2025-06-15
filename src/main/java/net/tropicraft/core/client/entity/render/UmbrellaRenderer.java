@@ -1,6 +1,7 @@
 package net.tropicraft.core.client.entity.render;
 
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
+import net.minecraft.world.phys.AABB;
 import net.tropicraft.core.client.TropicraftRenderLayers;
 import net.tropicraft.core.client.entity.model.UmbrellaModel;
 import net.tropicraft.core.client.entity.render.state.FurnitureRenderState;
@@ -16,6 +17,11 @@ public class UmbrellaRenderer extends FurnitureRenderer<UmbrellaEntity, Furnitur
     @Override
     public FurnitureRenderState createRenderState() {
         return new FurnitureRenderState();
+    }
+
+    @Override
+    protected AABB getBoundingBoxForCulling(UmbrellaEntity entity) {
+        return super.getBoundingBoxForCulling(entity).inflate(3.0, 1.0, 3.0);
     }
 
     //TODO

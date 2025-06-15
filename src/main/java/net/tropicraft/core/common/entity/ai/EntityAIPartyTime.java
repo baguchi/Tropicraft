@@ -53,7 +53,7 @@ public class EntityAIPartyTime extends Goal {
 
         BlockPos blockpos = entityObj.blockPosition();
 
-        if ((entityObj.druggedTime > 0 || !entityObj.level().isDay() || entityObj.level().isRaining() && entityObj.level().getBiome(blockpos).value().getPrecipitationAt(blockpos) != Biome.Precipitation.RAIN)) {
+        if ((entityObj.druggedTime > 0 || !entityObj.level().isBrightOutside() || entityObj.level().isRaining() && entityObj.level().getBiome(blockpos).value().getPrecipitationAt(blockpos, entityObj.level().getSeaLevel()) != Biome.Precipitation.RAIN)) {
             if (!isTooClose()) {
                 if (entityObj.level().random.nextInt(20) == 0) {
                     return true;
@@ -72,7 +72,7 @@ public class EntityAIPartyTime extends Goal {
     public boolean canContinueToUse() {
         BlockPos blockpos = entityObj.blockPosition();
         //return !this.entityObj.getNavigation().noPath();
-        if ((entityObj.druggedTime > 0 || !entityObj.level().isDay() || entityObj.level().isRaining() && entityObj.level().getBiome(blockpos).value().getPrecipitationAt(blockpos) != Biome.Precipitation.RAIN)) {
+        if ((entityObj.druggedTime > 0 || !entityObj.level().isBrightOutside() || entityObj.level().isRaining() && entityObj.level().getBiome(blockpos).value().getPrecipitationAt(blockpos, entityObj.level().getSeaLevel()) != Biome.Precipitation.RAIN)) {
             return !isTooClose();
         } else {
             return entityObj.level().random.nextInt(60) != 0;

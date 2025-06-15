@@ -86,8 +86,8 @@ public class SharkEntity extends WaterAnimal {
                 .add(Attributes.ATTACK_DAMAGE, 4.0);
     }
 
-    public void setBoss() {
-        getEntityData().set(IS_BOSS, true);
+    public void setBoss(boolean boss) {
+        getEntityData().set(IS_BOSS, boss);
     }
 
     public boolean isBoss() {
@@ -171,9 +171,7 @@ public class SharkEntity extends WaterAnimal {
 
     @Override
     public void readAdditionalSaveData(CompoundTag n) {
-        if (n.getBoolean("isBoss")) {
-            setBoss();
-        }
+        setBoss(n.getBooleanOr("isBoss", false));
         super.readAdditionalSaveData(n);
     }
 

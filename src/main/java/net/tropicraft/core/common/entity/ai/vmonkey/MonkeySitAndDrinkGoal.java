@@ -26,7 +26,7 @@ public class MonkeySitAndDrinkGoal extends Goal {
     @Override
     public void stop() {
         entity.setInSittingPose(false);
-        entity.spawnAtLocation(new ItemStack(TropicraftItems.BAMBOO_MUG.get()));
+        entity.spawnAtLocation(getServerLevel(entity), new ItemStack(TropicraftItems.BAMBOO_MUG.get()));
         entity.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
         waitCounter = DEFAULT_WAIT;
     }

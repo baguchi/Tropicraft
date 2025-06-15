@@ -67,9 +67,7 @@ public class ExplodingCoconutEntity extends ThrowableItemProjectile {
     @Override
     public void readAdditionalSaveData(CompoundTag tag) {
         super.readAdditionalSaveData(tag);
-        if (tag.contains("explosion_radius", Tag.TAG_FLOAT)) {
-            explosionRadius = tag.getFloat("explosion_radius");
-        }
-        destroysBlocks = tag.getBoolean("destroys_blocks");
+        explosionRadius = tag.getFloatOr("explosion_radius", DEFAULT_EXPLOSION_RADIUS);
+        destroysBlocks = tag.getBooleanOr("destroys_blocks", DEFAULT_DESTROYS_BLOCKS);
     }
 }

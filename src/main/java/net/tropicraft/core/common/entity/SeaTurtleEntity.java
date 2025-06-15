@@ -120,19 +120,14 @@ public class SeaTurtleEntity extends Turtle {
     @Override
     public void readAdditionalSaveData(CompoundTag nbt) {
         super.readAdditionalSaveData(nbt);
-        if (nbt.contains("TurtleType")) {
-            setTurtleType(nbt.getInt("TurtleType"));
-        } else {
-            setRandomTurtleType();
-        }
-        if (nbt.contains("IsMature")) {
-            setIsMature(nbt.getBoolean("IsMature"));
-        } else {
-            setIsMature(true);
-        }
-        setNoBrakes(nbt.getBoolean("NoBrakesOnThisTrain"));
-        setCanFly(nbt.getBoolean("LongsForTheSky"));
-        setHasEgg(nbt.getBoolean("HasEgg"));
+        nbt.getInt("TurtleType").ifPresentOrElse(
+                this::setTurtleType,
+                this::setRandomTurtleType
+        );
+        setIsMature(nbt.getBooleanOr("IsMature", true));
+        setNoBrakes(nbt.getBooleanOr("NoBrakesOnThisTrain", false));
+        setCanFly(nbt.getBooleanOr("LongsForTheSky", false));
+        setHasEgg(nbt.getBooleanOr("HasEgg", false));
         lastPosY = getY();
     }
 
@@ -189,7 +184,7 @@ public class SeaTurtleEntity extends Turtle {
     @Nullable
     @Override
     public AgeableMob getBreedOffspring(ServerLevel world, AgeableMob partner) {
-        return TropicraftEntities.SEA_TURTLE.get().create(level())
+        return TropicraftEntities.SEA_TURTLE.get().create(level(), EntitySpawnReason.BREEDING)
                 .setTurtleType(random.nextBoolean() && partner instanceof SeaTurtleEntity ? ((SeaTurtleEntity) partner).getTurtleType() : getTurtleType())
                 .setIsMature(false);
     }
@@ -245,7 +240,7 @@ public class SeaTurtleEntity extends Turtle {
                         ParticleOptions particle = isInWater() ? ParticleTypes.BUBBLE : ParticleTypes.END_ROD;
                         for (int i = 0; i < particlesToSpawn; i++) {
                             Vec3 particleMotion = movement.scale(1);
-                            level().addParticle(particle, true,
+                            level().addParticle(particle, true, true,
                                     particleOffset.x() + getX() - 0.25 + random.nextDouble() * 0.5,
                                     particleOffset.y() + getY() + 0.1 + random.nextDouble() * 0.1,
                                     particleOffset.z() + getZ() - 0.25 + random.nextDouble() * 0.5, particleMotion.x, particleMotion.y, particleMotion.z);
@@ -325,7 +320,8 @@ public class SeaTurtleEntity extends Turtle {
             }
         }
 
-        if (!isControlledByLocalInstance()) {
+        // TODO: This smells stale
+        if (!canSimulateMovement()) {
             fallDistance = (float) Math.max(0, (getY() - lastPosY) * -8);
         }
     }
@@ -375,12 +371,12 @@ public class SeaTurtleEntity extends Turtle {
 
         @Override
         public boolean canUse() {
-            return turtle.hasEgg() && turtle.getHomePos().closerToCenterThan(turtle.position(), 9.0) && super.canUse();
+            return turtle.hasEgg() && turtle.getRestrictCenter().closerToCenterThan(turtle.position(), 9.0) && super.canUse();
         }
 
         @Override
         public boolean canContinueToUse() {
-            return super.canContinueToUse() && turtle.hasEgg() && turtle.getHomePos().closerToCenterThan(turtle.position(), 9.0);
+            return super.canContinueToUse() && turtle.hasEgg() && turtle.getRestrictCenter().closerToCenterThan(turtle.position(), 9.0);
         }
 
         @Override
@@ -394,7 +390,7 @@ public class SeaTurtleEntity extends Turtle {
                     Level world = turtle.level();
                     world.playSound(null, blockpos, SoundEvents.TURTLE_LAY_EGG, SoundSource.BLOCKS, 0.3f, 0.9f + world.random.nextFloat() * 0.2f);
                     //world.setBlockState(this.destinationBlock.up(), Blocks.TURTLE_EGG.defaultBlockState().with(TurtleEggBlock.EGGS, Integer.valueOf(this.turtle.rand.nextInt(4) + 1)), 3);
-                    SeaTurtleEggEntity egg = TropicraftEntities.SEA_TURTLE_EGG.get().create(world);
+                    SeaTurtleEggEntity egg = TropicraftEntities.SEA_TURTLE_EGG.get().create(world, EntitySpawnReason.BREEDING);
                     BlockPos spawnPos = blockPos.above();
                     egg.setPos(spawnPos.getX(), spawnPos.getY(), spawnPos.getZ());
                     world.addFreshEntity(egg);

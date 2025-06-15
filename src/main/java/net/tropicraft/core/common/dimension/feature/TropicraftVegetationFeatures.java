@@ -6,7 +6,7 @@ import net.minecraft.data.worldgen.BootstrapContext;
 import net.minecraft.data.worldgen.features.FeatureUtils;
 import net.minecraft.data.worldgen.placement.PlacementUtils;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.util.random.SimpleWeightedRandomList;
+import net.minecraft.util.random.WeightedList;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.LeavesBlock;
 import net.minecraft.world.level.block.state.BlockState;
@@ -96,7 +96,7 @@ public final class TropicraftVegetationFeatures {
 
         register(context, PATCH_GRASS_TROPICS, Feature.RANDOM_PATCH, new RandomPatchConfiguration(32, 7, 3, PlacementUtils.filtered(
                 Feature.SIMPLE_BLOCK,
-                new SimpleBlockConfiguration(new WeightedStateProvider(SimpleWeightedRandomList.<BlockState>builder()
+                new SimpleBlockConfiguration(new WeightedStateProvider(WeightedList.<BlockState>builder()
                         .add(Blocks.SHORT_GRASS.defaultBlockState(), 3)
                         .add(Blocks.FERN.defaultBlockState(), 1)
                 )),

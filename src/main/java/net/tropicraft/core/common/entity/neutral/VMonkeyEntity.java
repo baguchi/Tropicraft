@@ -113,7 +113,7 @@ public class VMonkeyEntity extends TamableAnimal {
     @Override
     public void readAdditionalSaveData(CompoundTag compound) {
         super.readAdditionalSaveData(compound);
-        setMonkeyFlags(compound.getByte("MonkeyFlags"));
+        setMonkeyFlags(compound.getByteOr("MonkeyFlags", (byte) 0));
     }
 
     @Nullable
@@ -180,7 +180,7 @@ public class VMonkeyEntity extends TamableAnimal {
                     setTarget(null);
                     setOrderedToSit(true);
                     setHealth(20.0f);
-                    setOwnerUUID(player.getUUID());
+                    setOwner(player);
                     level().broadcastEntityEvent(this, (byte) 7);
                 } else {
                     level().broadcastEntityEvent(this, (byte) 6);
@@ -213,19 +213,20 @@ public class VMonkeyEntity extends TamableAnimal {
     }
 
     @Override
-    public boolean hurt(DamageSource source, float amount) {
-        if (isInvulnerableTo(source)) {
+    public boolean hurtServer(ServerLevel level, DamageSource source, float amount) {
+        if (isInvulnerableTo(level, source)) {
             return false;
-        } else {
-            Entity entity = source.getEntity();
-            setOrderedToSit(false);
-
-            if (entity != null && entity.getType() != EntityType.PLAYER && !(entity instanceof Arrow)) {
-                amount = (amount + 1.0f) / 2.0f;
-            }
-
-            return super.hurt(source, amount);
         }
+
+        Entity entity = source.getEntity();
+        setOrderedToSit(false);
+
+        // TODO: This seems like it was copied from Wolves, but Wolves don't even do that anymore
+        if (entity != null && entity.getType() != EntityType.PLAYER && !(entity instanceof Arrow)) {
+            amount = (amount + 1.0f) / 2.0f;
+        }
+
+        return super.hurtServer(level, source, amount);
     }
 
     public boolean isMadAboutStolenAlcohol() {

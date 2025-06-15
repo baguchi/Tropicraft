@@ -21,10 +21,10 @@ public class ExplodingCoconutItem extends Item {
     }
 
     @Override
-    public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
+    public InteractionResult use(Level level, Player player, InteractionHand hand) {
         ItemStack item = player.getItemInHand(hand);
         if (level.isClientSide()) {
-            return new InteractionResultHolder<>(InteractionResult.CONSUME, item);
+            return InteractionResult.CONSUME;
         }
 
         float explosionRadius = item.getOrDefault(TropicraftDataComponents.EXPLOSION_RADIUS, ExplodingCoconutEntity.DEFAULT_EXPLOSION_RADIUS);
@@ -35,7 +35,7 @@ public class ExplodingCoconutItem extends Item {
         boolean canPlayerThrow = player.isCreative() || player.canUseGameMasterBlocks() || TropicsConfigs.COMMON.allowExplodingCoconutsByNonOPs.get();
         if (requiresPermission && !canPlayerThrow) {
             player.displayClientMessage(TropicraftLangKeys.EXPLODING_COCONUT_WARNING.component(), false);
-            return new InteractionResultHolder<>(InteractionResult.FAIL, item);
+            return InteractionResult.FAIL;
         }
 
         ExplodingCoconutEntity coconut = new ExplodingCoconutEntity(level, player, explosionRadius, destroysBlocks);
@@ -48,6 +48,6 @@ public class ExplodingCoconutItem extends Item {
 
         item.consume(1, player);
 
-        return new InteractionResultHolder<>(InteractionResult.SUCCESS, item);
+        return InteractionResult.SUCCESS.heldItemTransformedTo(item);
     }
 }

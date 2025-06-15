@@ -47,10 +47,12 @@ import java.util.Collection;
 public class TropiCreeperEntity extends PathfinderMob {
     private static final EntityDataAccessor<Integer> STATE = SynchedEntityData.defineId(TropiCreeperEntity.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Boolean> IGNITED = SynchedEntityData.defineId(TropiCreeperEntity.class, EntityDataSerializers.BOOLEAN);
+    private static final short DEFAULT_FUSE = 30;
+    private static final byte DEFAULT_EXPLOSION_RADIUS = 3;
 
     private int prevTimeSinceIgnited, timeSinceIgnited;
-    private int fuseTime = 30;
-    private int explosionRadius = 3;
+    private int fuseTime = DEFAULT_FUSE;
+    private int explosionRadius = DEFAULT_EXPLOSION_RADIUS;
 
     public TropiCreeperEntity(EntityType<? extends PathfinderMob> entityType, Level worldIn) {
         super(entityType, worldIn);
@@ -114,17 +116,9 @@ public class TropiCreeperEntity extends PathfinderMob {
     @Override
     public void readAdditionalSaveData(CompoundTag compound) {
         super.readAdditionalSaveData(compound);
-        if (compound.contains("Fuse", 99)) {
-            fuseTime = compound.getShort("Fuse");
-        }
-
-        if (compound.contains("ExplosionRadius", 99)) {
-            explosionRadius = compound.getByte("ExplosionRadius");
-        }
-
-        if (compound.getBoolean("ignited")) {
-            ignite();
-        }
+        fuseTime = compound.getShortOr("Fuse", DEFAULT_FUSE);
+        explosionRadius = compound.getByteOr("ExplosionRadius", DEFAULT_EXPLOSION_RADIUS);
+        entityData.set(IGNITED, compound.getBooleanOr("ignited", false));
     }
 
     @Override
@@ -206,7 +200,7 @@ public class TropiCreeperEntity extends PathfinderMob {
             int radius = 5;
             int radiusSq = radius * radius;
             BlockPos center = blockPosition();
-            HolderSet<Block> flowers = level().registryAccess().registryOrThrow(Registries.BLOCK).getOrCreateTag(TropicraftTags.Blocks.TROPICS_FLOWERS);
+            HolderSet<Block> flowers = level().registryAccess().lookupOrThrow(Registries.BLOCK).getOrThrow(TropicraftTags.Blocks.TROPICS_FLOWERS);
             for (int i = 0; i < 3 * radiusSq; i++) {
                 BlockPos attempt = center.offset(random.nextInt((radius * 2) + 1) - radius, 0, random.nextInt((radius * 2) + 1) - radius);
                 if (attempt.distSqr(center) < radiusSq) {

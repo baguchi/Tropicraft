@@ -1,6 +1,9 @@
 package net.tropicraft.core.common.entity.passive;
 
 import com.google.common.base.Predicate;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import com.tterrag.registrate.util.entry.ItemEntry;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
@@ -12,12 +15,14 @@ import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.NbtOps;
+import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.resources.RegistryOps;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
@@ -94,6 +99,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.IntStream;
 
 public class EntityKoaBase extends Villager {
 
@@ -112,6 +118,20 @@ public class EntityKoaBase extends Villager {
     private static final EntityDataAccessor<Boolean> SITTING = SynchedEntityData.defineId(EntityKoaBase.class, EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<Boolean> DANCING = SynchedEntityData.defineId(EntityKoaBase.class, EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<Integer> LURE_ID = SynchedEntityData.defineId(EntityKoaBase.class, EntityDataSerializers.INT);
+
+    private static final MapCodec<BlockPos> HOME_POS_CODEC = legacyBlockPosCodec("home");
+    private static final MapCodec<BlockPos> FIREPLACE_POS_CODEC = legacyBlockPosCodec("fireplace");
+    private static final List<MapCodec<BlockPos>> DRUM_CODECS = IntStream.range(0, MAX_DRUMS)
+            .mapToObj(i -> legacyBlockPosCodec("drum_" + i))
+            .toList();
+
+    private static MapCodec<BlockPos> legacyBlockPosCodec(String name) {
+        return RecordCodecBuilder.mapCodec(i -> i.group(
+                Codec.INT.fieldOf(name + "_X").forGetter(BlockPos::getX),
+                Codec.INT.fieldOf(name + "_Y").forGetter(BlockPos::getY),
+                Codec.INT.fieldOf(name + "_Z").forGetter(BlockPos::getZ)
+        ).apply(i, BlockPos::new));
+    }
 
     private float clientHealthLastTracked = 0;
 
@@ -311,7 +331,7 @@ public class EntityKoaBase extends Villager {
 
             RegistryAccess registries = entity.registryAccess();
             ItemStack stack = new ItemStack(item, 1);
-            stack = EnchantmentHelper.enchantItem(random, stack, enchantLevel, registries, registries.registryOrThrow(Registries.ENCHANTMENT).getTag(EnchantmentTags.ON_TRADED_EQUIPMENT));
+            stack = EnchantmentHelper.enchantItem(random, stack, enchantLevel, registries, registries.lookupOrThrow(Registries.ENCHANTMENT).get(EnchantmentTags.ON_TRADED_EQUIPMENT));
 
             return new MerchantOffer(new ItemCost(TropicraftItems.WHITE_PEARL.get(), sellCount + cost), stack, maxUses, givenXP, priceMultiplier);
         }
@@ -420,7 +440,7 @@ public class EntityKoaBase extends Villager {
     @Override
     protected void updateTrades() {
         VillagerData data = getVillagerData();
-        VillagerTrades.ItemListing[] possibleTrades = getTradesByLevel().get(data.getLevel());
+        VillagerTrades.ItemListing[] possibleTrades = getTradesByLevel().get(data.level());
         if (possibleTrades != null) {
             addOffersFromItemListings(getOffers(), possibleTrades, 2);
         }
@@ -811,14 +831,12 @@ public class EntityKoaBase extends Villager {
     @Override
     public void addAdditionalSaveData(CompoundTag compound) {
         super.addAdditionalSaveData(compound);
-        compound.putInt("home_X", getRestrictCenter().getX());
-        compound.putInt("home_Y", getRestrictCenter().getY());
-        compound.putInt("home_Z", getRestrictCenter().getZ());
+        if (getRestrictRadius() != -1) {
+            compound.store(HOME_POS_CODEC, getRestrictCenter());
+        }
 
         if (posLastFireplaceFound != null) {
-            compound.putInt("fireplace_X", posLastFireplaceFound.getX());
-            compound.putInt("fireplace_Y", posLastFireplaceFound.getY());
-            compound.putInt("fireplace_Z", posLastFireplaceFound.getZ());
+            compound.store(FIREPLACE_POS_CODEC, posLastFireplaceFound);
         }
 
         compound.putLong("lastTimeFished", lastTimeFished);
@@ -847,9 +865,7 @@ public class EntityKoaBase extends Villager {
         compound.putLong("lastTradeTime", lastTradeTime);
 
         for (int i = 0; i < listPosDrums.size(); i++) {
-            compound.putInt("drum_" + i + "_X", listPosDrums.get(i).getX());
-            compound.putInt("drum_" + i + "_Y", listPosDrums.get(i).getY());
-            compound.putInt("drum_" + i + "_Z", listPosDrums.get(i).getZ());
+            compound.store(DRUM_CODECS.get(i), listPosDrums.get(i));
         }
 
         compound.putInt("druggedTime", druggedTime);
@@ -858,59 +874,45 @@ public class EntityKoaBase extends Villager {
     @Override
     public void readAdditionalSaveData(CompoundTag compound) {
         super.readAdditionalSaveData(compound);
-        if (compound.contains("home_X")) {
-            restrictTo(new BlockPos(compound.getInt("home_X"), compound.getInt("home_Y"), compound.getInt("home_Z")), MAX_HOME_DISTANCE);
+
+        compound.read(HOME_POS_CODEC).ifPresentOrElse(
+                homePos -> restrictTo(homePos, MAX_HOME_DISTANCE),
+                this::clearRestriction
+        );
+        setFirelacePos(compound.read(FIREPLACE_POS_CODEC).orElse(null));
+
+        lastTimeFished = compound.getLongOr("lastTimeFished", 0);
+
+        RegistryOps<Tag> ops = registryAccess().createSerializationContext(NbtOps.INSTANCE);
+        ListTag inventoryList = compound.getListOrEmpty("koa_inventory");
+        for (int i = 0; i < inventoryList.size(); ++i) {
+            CompoundTag slotCompound = inventoryList.getCompoundOrEmpty(i);
+            int slot = slotCompound.getByteOr("Slot", (byte) 0) & 0xff;
+            inventory.setItem(slot, slotCompound.read(ItemStack.MAP_CODEC, ops).orElse(ItemStack.EMPTY));
         }
 
-        if (compound.contains("fireplace_X")) {
-            setFirelacePos(new BlockPos(compound.getInt("fireplace_X"), compound.getInt("fireplace_Y"), compound.getInt("fireplace_Z")));
-        }
-
-        lastTimeFished = compound.getLong("lastTimeFished");
-
-        if (compound.contains("koa_inventory", 9)) {
-            ListTag nbttaglist = compound.getList("koa_inventory", 10);
-            //this.initHorseChest();
-
-            for (int i = 0; i < nbttaglist.size(); ++i) {
-                CompoundTag nbttagcompound = nbttaglist.getCompound(i);
-                int j = nbttagcompound.getByte("Slot") & 255;
-
-                inventory.setItem(j, ItemStack.parseOptional(registryAccess(), nbttagcompound));
-            }
-        }
-
-        villageID = compound.getInt("village_id");
+        villageID = compound.getIntOr("village_id", -1);
 
         //backwards compat
-        if (!compound.contains("village_dimension")) {
-            villageDimension = level().dimension();
-        } else {
-            villageDimension = ResourceKey.create(Registries.DIMENSION, ResourceLocation.parse(compound.getString("village_dim_id")));
-        }
+        villageDimension = compound.read("village_dimension", ResourceKey.codec(Registries.DIMENSION)).orElse(level().dimension());
 
-        if (compound.contains("role_id")) {
-            getEntityData().set(ROLE, compound.getInt("role_id"));
-        } else {
-            rollDiceRole();
-        }
-        if (compound.contains("gender_id")) {
-            getEntityData().set(GENDER, compound.getInt("gender_id"));
-        } else {
-            rollDiceGender();
-        }
+        compound.getInt("role_id").ifPresentOrElse(
+                roleId -> getEntityData().set(ROLE, roleId),
+                this::rollDiceRole
+        );
+        compound.getInt("gender_id").ifPresentOrElse(
+                genderId -> getEntityData().set(GENDER, genderId),
+                this::rollDiceGender
+        );
 
-        lastTradeTime = compound.getLong("lastTradeTime");
+        lastTradeTime = compound.getLongOr("lastTradeTime", 0);
 
+        listPosDrums.clear();
         for (int i = 0; i < MAX_DRUMS; i++) {
-            if (compound.contains("drum_" + i + "_X")) {
-                listPosDrums.add(new BlockPos(compound.getInt("drum_" + i + "_X"),
-                        compound.getInt("drum_" + i + "_Y"),
-                        compound.getInt("drum_" + i + "_Z")));
-            }
+            compound.read(DRUM_CODECS.get(i)).ifPresent(listPosDrums::add);
         }
 
-        druggedTime = compound.getInt("druggedTime");
+        druggedTime = compound.getIntOr("druggedTime", 0);
 
         updateUniqueEntityAI();
     }
@@ -1286,12 +1288,12 @@ public class EntityKoaBase extends Villager {
     }
 
     private boolean shouldIncreaseLevel() {
-        int level = getVillagerData().getLevel();
+        int level = getVillagerData().level();
         return VillagerData.canLevelUp(level) && getVillagerXp() >= VillagerData.getMaxXpPerLevel(level);
     }
 
     private void increaseMerchantCareer() {
-        setVillagerData(getVillagerData().setLevel(getVillagerData().getLevel() + 1));
+        setVillagerData(getVillagerData().withLevel(getVillagerData().level() + 1));
         updateTrades();
     }
 
@@ -1358,13 +1360,13 @@ public class EntityKoaBase extends Villager {
         wasInWater = isInWater();
 
         if (!wasNightLastTick) {
-            if (!level().isDay()) {
+            if (!level().isBrightOutside()) {
                 //roll dice once
                 rollDiceParty();
             }
         }
 
-        wasNightLastTick = !level().isDay();
+        wasNightLastTick = !level().isBrightOutside();
 
         if (!level().isClientSide) {
             //if (world.getGameTime() % (20*5) == 0) {
@@ -1527,19 +1529,6 @@ public class EntityKoaBase extends Villager {
                 getEntityData().set(LURE_ID, -1);
             }
         }
-    }
-
-    @Override
-    public boolean hurt(DamageSource source, float amount) {
-        boolean result = super.hurt(source, amount);
-        if (getHealth() <= 0) {
-            if (source.getEntity() instanceof LivingEntity) {
-                //System.out.println("koa died by: " + source.getDamageType() + " - loc: " + source.getDamageLocation() + " - " + source.getDeathMessage((EntityLivingBase)source.getEntity()));
-            } else {
-                //System.out.println("koa died by: " + source.getDamageType() + " - loc: " + source.getDamageLocation());
-            }
-        }
-        return result;
     }
 
     //TODO: 1.14 readd

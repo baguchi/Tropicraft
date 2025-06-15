@@ -2,6 +2,7 @@ package net.tropicraft.core.common.entity.placeable;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.ItemStack;
@@ -23,8 +24,8 @@ public class WallItemEntity extends BambooItemFrame {
     }
 
     @Override
-    protected void dropItem(@Nullable Entity entityIn, boolean p_146065_2_) {
-        super.dropItem(entityIn, false);
+    public void dropItem(ServerLevel level, @Nullable Entity entity) {
+        super.dropItem(level, entity);
         remove(RemovalReason.DISCARDED);
     }
 

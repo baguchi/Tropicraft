@@ -4,13 +4,13 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import net.tropicraft.core.common.item.AshenMasks;
 import net.tropicraft.core.common.item.TropicraftItems;
@@ -40,7 +40,7 @@ public class AshenMaskEntity extends Entity {
 
     @Override
     protected void readAdditionalSaveData(CompoundTag nbt) {
-        setMaskType(nbt.getByte("MaskType"));
+        setMaskType(nbt.getByteOr("MaskType", (byte) 0));
     }
 
     @Override
@@ -81,11 +81,11 @@ public class AshenMaskEntity extends Entity {
     }
 
     @Override
-    public boolean hurt(DamageSource damageSource, float par2) {
-        if (isInvulnerableTo(damageSource)) {
+    public boolean hurtServer(ServerLevel level, DamageSource damageSource, float amount) {
+        if (isInvulnerableToBase(damageSource)) {
             return false;
         } else {
-            if (isAlive() && !level().isClientSide) {
+            if (isAlive()) {
                 remove(RemovalReason.KILLED);
                 markHurt();
                 dropItemStack();
@@ -96,7 +96,7 @@ public class AshenMaskEntity extends Entity {
     }
 
     @Override
-    public ItemStack getPickedResult(HitResult target) {
+    public ItemStack getPickResult() {
         return new ItemStack(TropicraftItems.ASHEN_MASKS.get(AshenMasks.VALUES[getMaskType()]).get());
     }
 }

@@ -166,7 +166,7 @@ public class EntityAIKoaMate extends Goal {
         //if (net.neoforged.common.MinecraftForge.EVENT_BUS.post(event) || event.getChild() == null) { return; }
         //entityvillager = event.getChild();
         entityvillager.setAge(-24000);
-        entityvillager.moveTo(villagerObj.getX(), villagerObj.getY(), villagerObj.getZ(), 0.0f, 0.0f);
+        entityvillager.snapTo(villagerObj.getX(), villagerObj.getY(), villagerObj.getZ(), 0.0f, 0.0f);
         if (entityvillager instanceof EntityKoaBase) {
             ((EntityKoaBase) entityvillager).setVillageAndDimID(villagerObj.getVillageID(), villagerObj.getVillageDimension());
             entityvillager.restrictTo(villagerObj.getRestrictCenter(), EntityKoaBase.MAX_HOME_DISTANCE);

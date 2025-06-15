@@ -4,6 +4,8 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MoverType;
@@ -35,7 +37,7 @@ public class LavaBallEntity extends Entity {
     public LavaBallEntity(EntityType<? extends LavaBallEntity> type, Level world, double i, double j, double k, double motX, double motY, double motZ) {
         super(type, world);
         setFire = false;
-        moveTo(i, j, k, 0, 0);
+        snapTo(i, j, k, 0, 0);
         accelerationX = motX;
         accelerationY = motY;
         accelerationZ = motZ;
@@ -161,8 +163,13 @@ public class LavaBallEntity extends Entity {
     }
 
     @Override
+    public boolean hurtServer(ServerLevel level, DamageSource damageSource, float amount) {
+        return false;
+    }
+
+    @Override
     protected void readAdditionalSaveData(CompoundTag nbt) {
-        lifeTimer = nbt.getInt("lifeTimer");
+        lifeTimer = nbt.getIntOr("lifeTimer", 0);
     }
 
     @Override

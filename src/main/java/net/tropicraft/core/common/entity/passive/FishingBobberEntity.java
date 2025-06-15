@@ -11,6 +11,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.util.Mth;
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MoverType;
@@ -53,7 +54,6 @@ public class FishingBobberEntity extends Entity implements IEntityWithComplexSpa
 
     private FishingBobberEntity(Level p_i50219_1_, EntityKoaBase koaBase, int luck, int lureSpeed) {
         super(TropicraftEntities.FISHING_BOBBER.get(), p_i50219_1_);
-        noCulling = true;
         angler = koaBase;
         angler.setLure(this);
         this.luck = Math.max(0, luck);
@@ -80,7 +80,7 @@ public class FishingBobberEntity extends Entity implements IEntityWithComplexSpa
         double d0 = angler.getX() - (double) f3 * 0.3;
         double d1 = angler.getY() + (double) angler.getEyeHeight();
         double d2 = angler.getZ() - (double) f2 * 0.3;
-        moveTo(d0, d1, d2, f1, f);
+        snapTo(d0, d1, d2, f1, f);
         Vec3 Vector3d = new Vec3(-f3, Mth.clamp(-(f5 / f4), -5.0f, 5.0f), -f2);
         double d3 = Vector3d.length();
         Vector3d = Vector3d.multiply(0.6 / d3 + 0.5 + random.nextGaussian() * 0.0045, 0.6 / d3 + 0.5 + random.nextGaussian() * 0.0045, 0.6 / d3 + 0.5 + random.nextGaussian() * 0.0045);
@@ -111,20 +111,8 @@ public class FishingBobberEntity extends Entity implements IEntityWithComplexSpa
     }
 
     @Override
-    @OnlyIn(Dist.CLIENT)
-    public boolean shouldRenderAtSqrDistance(double distance) {
-        double d0 = 64.0;
-        return distance < 4096.0;
-    }
-
-    // Inflated so it will still render when looking at koa but not fishing lure
-    @Override
-    public AABB getBoundingBoxForCulling() {
-        return getBoundingBox().inflate(8, 5.0, 8);
-    }
-
-    @Override
-    public void lerpTo(double x, double y, double z, float yaw, float pitch, int posRotationIncrements) {
+    public boolean shouldRenderAtSqrDistance(double distanceSq) {
+        return distanceSq < Mth.square(64.0);
     }
 
     @Override
@@ -385,6 +373,11 @@ public class FishingBobberEntity extends Entity implements IEntityWithComplexSpa
     }
 
     @Override
+    public boolean hurtServer(ServerLevel level, DamageSource damageSource, float amount) {
+        return false;
+    }
+
+    @Override
     public void remove(RemovalReason reason) {
         super.remove(reason);
         if (angler != null) {
@@ -398,7 +391,7 @@ public class FishingBobberEntity extends Entity implements IEntityWithComplexSpa
     }
 
     @Override
-    public boolean canChangeDimensions(Level oldLevel, Level newLevel) {
+    public boolean canUsePortal(boolean allowPassengers) {
         return false;
     }
 

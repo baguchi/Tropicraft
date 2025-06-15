@@ -89,7 +89,7 @@ public abstract class EchinodermEntity extends WaterAnimal {
     @Override
     public void readAdditionalSaveData(CompoundTag compound) {
         super.readAdditionalSaveData(compound);
-        setGrowingAge(compound.getInt("Age"));
+        setGrowingAge(compound.getIntOr("Age", 0));
     }
 
     @Override

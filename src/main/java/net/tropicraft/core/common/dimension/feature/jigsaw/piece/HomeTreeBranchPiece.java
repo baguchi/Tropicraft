@@ -70,10 +70,10 @@ public final class HomeTreeBranchPiece extends StructurePoolElement implements I
     }
 
     @Override
-    public List<StructureTemplate.StructureBlockInfo> getShuffledJigsawBlocks(StructureTemplateManager templates, BlockPos pos, Rotation rotation, RandomSource random) {
+    public List<StructureTemplate.JigsawBlockInfo> getShuffledJigsawBlocks(StructureTemplateManager structureTemplateManager, BlockPos pos, Rotation rotation, RandomSource random) {
         FrontAndTop orientation = FrontAndTop.fromFrontAndTop(Direction.DOWN, Direction.SOUTH);
         BlockState state = Blocks.JIGSAW.defaultBlockState().setValue(JigsawBlock.ORIENTATION, orientation);
-        return List.of(new StructureTemplate.StructureBlockInfo(pos, state, JIGSAW_NBT));
+        return List.of(StructureTemplate.JigsawBlockInfo.of(new StructureTemplate.StructureBlockInfo(pos, state, JIGSAW_NBT)));
     }
 
     @Override

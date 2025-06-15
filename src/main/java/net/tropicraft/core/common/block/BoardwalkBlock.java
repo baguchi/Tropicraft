@@ -3,11 +3,13 @@ package net.tropicraft.core.common.block;
 import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.util.RandomSource;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.ScheduledTickAccess;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.SimpleWaterloggedBlock;
@@ -72,28 +74,28 @@ public final class BoardwalkBlock extends Block implements SimpleWaterloggedBloc
     }
 
     @Override
-    public BlockState updateShape(BlockState state, Direction facing, BlockState facingState, LevelAccessor world, BlockPos currentPos, BlockPos facingPos) {
+    protected BlockState updateShape(BlockState state, LevelReader level, ScheduledTickAccess scheduledTickAccess, BlockPos pos, Direction direction, BlockPos neighborPos, BlockState neighborState, RandomSource random) {
         if (state.getValue(WATERLOGGED)) {
-            world.scheduleTick(currentPos, Fluids.WATER, Fluids.WATER.getTickDelay(world));
+            scheduledTickAccess.scheduleTick(pos, Fluids.WATER, Fluids.WATER.getTickDelay(level));
         }
 
-        if (facing != Direction.UP) {
-            return applyConnections(state, world, currentPos);
+        if (direction != Direction.UP) {
+            return applyConnections(state, level, pos);
         } else {
             return state;
         }
     }
 
-    private BlockState applyConnections(BlockState state, LevelAccessor world, BlockPos pos) {
+    private BlockState applyConnections(BlockState state, LevelReader level, BlockPos pos) {
         Direction.Axis axis = state.getValue(AXIS);
         boolean tall = state.getValue(TYPE).isTall();
 
         BlockPos downPos = pos.below();
-        boolean posted = canSupportCenter(world, downPos, Direction.UP);
+        boolean posted = canSupportCenter(level, downPos, Direction.UP);
 
         if (tall) {
-            boolean front = connectsTo(world, pos, axis, Direction.AxisDirection.POSITIVE);
-            boolean back = connectsTo(world, pos, axis, Direction.AxisDirection.NEGATIVE);
+            boolean front = connectsTo(level, pos, axis, Direction.AxisDirection.POSITIVE);
+            boolean back = connectsTo(level, pos, axis, Direction.AxisDirection.NEGATIVE);
             if (front || back) posted = true;
 
             Type type = Type.tall(posted, front, back);
@@ -103,9 +105,9 @@ public final class BoardwalkBlock extends Block implements SimpleWaterloggedBloc
         }
     }
 
-    private boolean connectsTo(LevelAccessor world, BlockPos pos, Direction.Axis axis, Direction.AxisDirection direction) {
+    private boolean connectsTo(LevelReader level, BlockPos pos, Direction.Axis axis, Direction.AxisDirection direction) {
         BlockPos connectPos = pos.relative(Direction.fromAxisAndDirection(axis, direction));
-        BlockState connectState = world.getBlockState(connectPos);
+        BlockState connectState = level.getBlockState(connectPos);
         return connectState.is(this) && connectState.getValue(TYPE).isShort();
     }
 
@@ -132,7 +134,7 @@ public final class BoardwalkBlock extends Block implements SimpleWaterloggedBloc
     }
 
     @Override
-    public boolean propagatesSkylightDown(BlockState state, BlockGetter world, BlockPos pos) {
+    protected boolean propagatesSkylightDown(BlockState state) {
         return true;
     }
 
